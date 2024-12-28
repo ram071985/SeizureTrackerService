@@ -1,0 +1,6 @@
+@SeizureTrackerService_HostAddress = http://localhost:5218
+
+GET {{SeizureTrackerService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
