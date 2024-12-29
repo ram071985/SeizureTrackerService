@@ -1,7 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SeizureTrackerService.Controllers;
-
+[Authorize]
 [ApiController]
 [Route("/")]
 public class WeatherForecastController : ControllerBase
