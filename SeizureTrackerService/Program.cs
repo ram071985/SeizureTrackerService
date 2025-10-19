@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
+using SeizureTrackerService.Service;
+using SeizureTrackerService.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,13 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AuthZPolicy", policyBuilder =>
         policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement()
             { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
+
+builder.Services.AddDbContext<SeizureTrackerContext>(options =>
+{    
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DB"));
+});
+
+builder.Services.AddScoped<ISeizureTrackerService, SeizureTrackerService.Service.SeizureTrackerService>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>
