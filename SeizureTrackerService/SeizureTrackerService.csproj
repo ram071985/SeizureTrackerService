@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Context\" />
+      <Folder Include="Context\Extensions\" />
     </ItemGroup>
 
 </Project>
