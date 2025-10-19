@@ -8,12 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
-builder.Services.AddAuthorization(config =>
-{
-    config.AddPolicy("AuthZPolicy", policyBuilder =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AuthZPolicy", policyBuilder =>
         policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement()
             { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
-});
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>
@@ -50,7 +48,7 @@ builder.Services.AddSwaggerGen(c =>
             {
                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
             },
-            new[] { "https://login.microsoftonline.com/77a231ee-ce66-4265-ab57-611db161f461/oauth2/v2.0/token" }
+            ["https://login.microsoftonline.com/77a231ee-ce66-4265-ab57-611db161f461/oauth2/v2.0/token"]
         }
     });
 });
