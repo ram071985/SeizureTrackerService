@@ -16,7 +16,7 @@ builder.Services.AddAuthorizationBuilder()
         policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement()
             { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
 
-builder.Services.AddDbContext<SeizureTrackerContext>(options =>
+builder.Services.AddDbContext<ISeizureTrackerContext, SeizureTrackerContext>(options =>
 {    
     options.UseSqlServer(builder.Configuration.GetConnectionString("DB"));
 });

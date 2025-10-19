@@ -3,7 +3,7 @@ using SeizureTrackerService.Context.Entities;
 
 namespace SeizureTrackerService.Context;
 
-public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> options) : DbContext(options)
+public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> options) : DbContext(options), ISeizureTrackerContext
 {
     public DbSet<Seizure> Seizures { get; set; }
 

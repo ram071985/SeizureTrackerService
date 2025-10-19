@@ -1,10 +1,15 @@
+using SeizureTrackerService.Context;
+using SeizureTrackerService.Context.Entities;
 using SeizureTrackerService.Service.Models;
 
 namespace SeizureTrackerService.Service;
 
-public class SeizureTrackerService(IConfiguration config) : ISeizureTrackerService
+public class SeizureTrackerService(IConfiguration config, ISeizureTrackerService seizureTrackerService, ISeizureTrackerContext seizureTrackerContext) : ISeizureTrackerService
 {
     private readonly IConfiguration _config = config;
+    private readonly ILogger<SeizureTrackerService> _logger;
+    private readonly ISeizureTrackerContext _seizureTrackerContext = seizureTrackerContext;
+    private readonly ISeizureTrackerService _seizureTrackerService = seizureTrackerService;
     
     public async Task<SeizureFormDTO> AddActivityLog(SeizureFormDTO form)
     {
@@ -22,7 +27,7 @@ public class SeizureTrackerService(IConfiguration config) : ISeizureTrackerServi
             // await addSeizureLog(log);
             //
             // return log.MapSeizureLogEntityToDTO();
-            return new();
+            return await AddActivityLog();
         }
         catch (Exception ex)
         {
@@ -34,7 +39,7 @@ public class SeizureTrackerService(IConfiguration config) : ISeizureTrackerServi
 
     #region Private methods
 
-    private async Task<SeizureFormDTO> AddActivityLog() => await ;
+    private async Task AddActivityLog(Seizure activityLog) => await _seizureTrackerContext.AddSeizureActivityLog(activityLog);
 
     #endregion
 
