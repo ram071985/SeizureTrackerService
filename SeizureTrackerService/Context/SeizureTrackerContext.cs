@@ -5,15 +5,15 @@ namespace SeizureTrackerService.Context;
 
 public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> options) : DbContext(options), ISeizureTrackerContext
 {
-    public DbSet<Seizure> Seizures { get; set; }
+    public DbSet<SeizureActivityLog> Seizures { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("SeizureTracker");
-        modelBuilder.Entity<Seizure>().ToTable("seizureActivityLog");
+        modelBuilder.HasDefaultSchema("dev");
+        modelBuilder.Entity<SeizureActivityLog>().ToTable("SeizureActivityLog");
     }
     
-    public async Task AddSeizureActivityLog(Seizure activityLog)
+    public async Task AddSeizureActivityLog(SeizureActivityLog activityLog)
     {
         try
         {

@@ -1,23 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
+using SeizureTrackerService.Service;
+using SeizureTrackerService.Service.Models;
 
 namespace SeizureTrackerService.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class SeizureTrackerController(ILogger<SeizureTrackerController> log, IConfiguration config) : Controller
+public class SeizureTrackerController(ILogger<SeizureTrackerController> log, IConfiguration config, ISeizureTrackerService seizureTrackerService) : Controller
 {
 
     private readonly ILogger<SeizureTrackerController> _log = log;
     private readonly IConfiguration _config = config;
+    private readonly ISeizureTrackerService _seizureTrackerService = seizureTrackerService;
     
     [HttpPost]
-    public async Task<SeizureFormDto> AddSeizureLog([FromBody] SeizureFormDto form)
+    public async Task AddSeizureLog([FromBody] SeizureFormDto form)
     {
         try
         {
-            var log = await _seizureTrackerService.AddRecord(form);
-
-            return log;
+            await _seizureTrackerService.AddActivityLog(form);
         }
         catch (Exception ex)
         {

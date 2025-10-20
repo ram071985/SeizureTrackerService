@@ -4,5 +4,5 @@ namespace SeizureTrackerService.Context;
 
 public interface ISeizureTrackerContext
 {
-    public Task AddSeizureActivityLog(Seizure activityLog);
+    public Task AddSeizureActivityLog(SeizureActivityLog activityLog);
 }
