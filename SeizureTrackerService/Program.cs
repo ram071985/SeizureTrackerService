@@ -23,6 +23,18 @@ builder.Services.AddDbContext<ISeizureTrackerContext, SeizureTrackerContext>(opt
 
 builder.Services.AddScoped<ISeizureTrackerService, SeizureTrackerService.Service.SeizureTrackerService>();
 
+builder.Services.AddCors(options => 
+    {
+        options.AddPolicy(name: "MyAllowSpecificOrigins",
+            policy =>
+            {
+                policy.WithOrigins(builder.Configuration["AllowedOrigins"])
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            }
+            );
+    }
+);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -70,6 +82,8 @@ builder.Services.AddSwaggerGen(c =>
 //         Version = "v1"
 //     });
 // });
+
+
 
 var app = builder.Build();
 
