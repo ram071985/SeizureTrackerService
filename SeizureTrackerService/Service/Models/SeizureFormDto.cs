@@ -8,7 +8,7 @@ public class SeizureFormDto
     // public string AmPm { get; set; }
     // public int? SeizureStrength { get; init; }
     // public string KetonesLevel { get; set; }
-    // public string SeizureType { get; set; }
+    public string SeizureType { get; set; }
     // public int? SleepAmount { get; set; }
     // public string Notes { get; set; }
     // public string MedicationChange { get; set; }

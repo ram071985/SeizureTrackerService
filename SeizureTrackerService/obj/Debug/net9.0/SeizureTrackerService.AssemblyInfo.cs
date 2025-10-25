@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SeizureTrackerService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5af461b15706a7db7f9ca5bda150830894422060")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e01585aa92d475ba08aaa98ec32c061be631ba4d")]
 [assembly: System.Reflection.AssemblyProductAttribute("SeizureTrackerService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SeizureTrackerService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

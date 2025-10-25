@@ -11,8 +11,9 @@ internal static class DtoToEntity
         return new SeizureActivityLog
         {
             SeizureDescription = source.SeizureDescription,
-            CreatedDate = source.CreatedDate,
-            SeizureTime = isSeizureTimeValid ? seizureTime : null
+            CreatedDate = DateTime.Now,
+            SeizureDate = isSeizureTimeValid ? seizureTime : null,
+            SeizureType = source.SeizureType
         };
     }
 }
