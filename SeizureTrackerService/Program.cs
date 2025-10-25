@@ -23,6 +23,8 @@ builder.Services.AddDbContext<ISeizureTrackerContext, SeizureTrackerContext>(opt
 
 builder.Services.AddScoped<ISeizureTrackerService, SeizureTrackerService.Service.SeizureTrackerService>();
 
+builder.Services.AddControllers();
+
 builder.Services.AddCors(options => 
     {
         options.AddPolicy(name: "MyAllowSpecificOrigins",
@@ -35,7 +37,7 @@ builder.Services.AddCors(options =>
             );
     }
 );
-builder.Services.AddControllers();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Seizure Tracker API", Version = "v1" });
@@ -93,6 +95,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("MyAllowSpecificOrigins");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
