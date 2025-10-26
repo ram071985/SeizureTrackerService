@@ -6,14 +6,26 @@ internal static class DtoToEntity
 {
     internal static SeizureActivityLog MapSeizureActivityLogDtoToEntity(this SeizureFormDto source)
     {
-        var isSeizureTimeValid = DateTime.TryParse(source.SeizureTime, out var seizureTime);
+        var isSeizureTimeValid = DateTime.TryParse(source.SeizureDate, out var seizureTime);
+        var isSleepAmountValid = decimal.TryParse(source.SleepAmount, out var sleepAmount);
+        var isSeizureIntensityValid = int.TryParse(source.SeizureIntensity, out var seizureIntensity);
         
         return new SeizureActivityLog
         {
-            SeizureDescription = source.SeizureDescription,
+            SeizureDescription = source?.SeizureDescription,
             CreatedDate = DateTime.Now,
             SeizureDate = isSeizureTimeValid ? seizureTime : null,
-            SeizureType = source.SeizureType
+            SeizureType = source?.SeizureType,
+            SleepAmount = isSleepAmountValid ? sleepAmount : null,
+            SeizureIntensity = isSeizureIntensityValid ? seizureIntensity : null,
+            MedicationChange = source?.MedicationChange switch
+            {
+                "Yes" => true,
+                "No" => false,
+                _ => null
+            },
+            MedicationChangeDescription = source?.MedicationChangeDescription,
+            Notes = source?.Notes
         };
     }
 }
