@@ -17,7 +17,7 @@ public class SeizureTrackerController(ILogger<SeizureTrackerController> log, ICo
     public async Task AddSeizureLog([FromBody] SeizureFormDto form)
     {
         try
-        {
+         {
             await _seizureTrackerService.AddActivityLog(form);
         }
         catch (Exception ex)
