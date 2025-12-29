@@ -9,7 +9,7 @@ internal static class DtoToEntity
         var isSeizureTimeValid = DateTime.TryParse(source.SeizureDate, out var seizureTime);
         var isSleepAmountValid = decimal.TryParse(source.SleepAmount, out var sleepAmount);
         var isSeizureIntensityValid = int.TryParse(source.SeizureIntensity, out var seizureIntensity);
-        
+        var isDurationValid = decimal.TryParse(source.Duration, out var duration);
         return new SeizureActivityLog
         {
             SeizureDescription = source?.SeizureDescription,
@@ -25,7 +25,9 @@ internal static class DtoToEntity
                 _ => null
             },
             MedicationChangeDescription = source?.MedicationChangeDescription,
-            Notes = source?.Notes
+            Notes = source?.Notes,
+            Duration = isDurationValid ? duration : null,
+            ShortLog = source?.ShortLog
         };
     }
 }

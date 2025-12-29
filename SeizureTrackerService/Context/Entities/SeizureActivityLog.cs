@@ -14,4 +14,6 @@ public partial class SeizureActivityLog
     public string? Notes { get; set; }
     public bool? MedicationChange { get; set; }
     public string? MedicationChangeDescription{ get; set; }
+    public bool? ShortLog { get; set; }
+    public decimal? Duration { get; set; }
 }

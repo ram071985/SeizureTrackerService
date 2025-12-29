@@ -12,4 +12,6 @@ public class  SeizureFormDto
     public string? Notes { get; set; }
     public string? MedicationChange { get; set; }
     public string? MedicationChangeDescription { get; set; }
+    public bool? ShortLog { get; set; }
+    public string? Duration { get; set; }
 }
