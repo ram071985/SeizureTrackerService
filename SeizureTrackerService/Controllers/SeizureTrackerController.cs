@@ -14,11 +14,11 @@ public class SeizureTrackerController(ILogger<SeizureTrackerController> log, ICo
     private readonly ISeizureTrackerService _seizureTrackerService = seizureTrackerService;
     
     [HttpPost]
-    public async Task AddSeizureLog([FromBody] SeizureFormDto form)
+    public async Task AddSeizureLog([FromBody] SeizureActivityDetailDTO log)
     {
         try
-         {
-            await _seizureTrackerService.AddActivityLog(form);
+        {
+            await _seizureTrackerService.AddActivityLog(log);
         }
         catch (Exception ex)
         {

@@ -4,5 +4,5 @@ namespace SeizureTrackerService.Service;
 
 public interface ISeizureTrackerService
 {
-    public Task AddActivityLog(SeizureFormDto seizureFormDto);
+    public Task AddActivityLog(SeizureActivityDetailDTO seizureFormDto);
 }

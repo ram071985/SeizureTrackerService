@@ -5,31 +5,30 @@ using SeizureTrackerService.Service.Models.Mappings;
 
 namespace SeizureTrackerService.Service;
 
-public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext seizureTrackerContext) : ISeizureTrackerService
+public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext seizureTrackerContext)
+    : ISeizureTrackerService
 {
     private readonly IConfiguration _config = config;
     private readonly ILogger<SeizureTrackerService> _logger;
     private readonly ISeizureTrackerContext _seizureTrackerContext = seizureTrackerContext;
-    
-    public async Task AddActivityLog(SeizureFormDto activityForm)
-    {
-        // DateTime.TryParse(form.CreatedDate, out DateTime createdDate);
-        //
-        // DateTime? timeOfSeizure = null;
 
+    public async Task AddActivityLog(SeizureActivityDetailDTO log)
+    {
         try
         {
-            // if (form.TimeOfSeizure is not null)
-            //     timeOfSeizure = createdDate + createTimeOfSeizureTimeStamp(form);
-            //
-            // var log = form.MapSeiureLogDTOToEntityModel(createdDate, timeOfSeizure);
-            //
-            // await addSeizureLog(log);
-            //
-            // return log.MapSeizureLogEntityToDTO();
-            var mappedActivityLog = activityForm.MapSeizureActivityLogDtoToEntity();
+            var seizureActivityToday = await GetActivityHeadersFromToday();
+            var mappedActivityDetail = log.MapSeizureActivityDetailDTOToEntity();
             
-            await AddActivityLog(mappedActivityLog);
+            if (seizureActivityToday)
+            {
+                await AddActivityDetailLog(mappedActivityDetail);
+            }
+            else
+            {
+                var mappedActivityHeader = log.MapSeizureActivityHeaderDTOToEntity();
+                
+                await AddActivityHeaderLog(mappedActivityHeader);
+            }
         }
         catch (Exception ex)
         {
@@ -41,8 +40,26 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
 
     #region Private methods
 
-    private async Task AddActivityLog(SeizureActivityLog activityLog) => await _seizureTrackerContext.AddSeizureActivityLog(activityLog);
+    #region Get
+
+    private async Task<bool> GetActivityHeadersFromToday() =>
+        await _seizureTrackerContext.GetActivityHeadersFromToday();
+
+    private async Task<List<SeizureActivityHeader>> GetActivityHeaders() =>
+        await _seizureTrackerContext.GetActivityHeaders();
 
     #endregion
 
+
+    #region Add
+
+    private async Task AddActivityHeaderLog(SeizureActivityHeader activityHeader) =>
+        await _seizureTrackerContext.AddSeizureActivityHeader(activityHeader);
+
+    private async Task AddActivityDetailLog(SeizureActivityDetail activityDetail) =>
+        await _seizureTrackerContext.AddSeizureActivityDetail(activityDetail);
+
+    #endregion
+
+    #endregion
 }

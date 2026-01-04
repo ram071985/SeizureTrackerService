@@ -8,6 +8,8 @@ using SeizureTrackerService.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var allowedOrigins = builder.Configuration["AllowedOrigins"]
+    .Split(';');
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
@@ -17,8 +19,9 @@ builder.Services.AddAuthorizationBuilder()
             { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
 
 builder.Services.AddDbContext<ISeizureTrackerContext, SeizureTrackerContext>(options =>
-{    
+{
     options.UseSqlServer(builder.Configuration.GetConnectionString("DB"));
+
 });
 
 builder.Services.AddScoped<ISeizureTrackerService, SeizureTrackerService.Service.SeizureTrackerService>();
@@ -30,7 +33,7 @@ builder.Services.AddCors(options =>
         options.AddPolicy(name: "MyAllowSpecificOrigins",
             policy =>
             {
-                policy.WithOrigins(builder.Configuration["AllowedOrigins"])
+                policy.WithOrigins(allowedOrigins)
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             }
