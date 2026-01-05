@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using SeizureTrackerService.Constants;
 using SeizureTrackerService.Service;
 using SeizureTrackerService.Service.Models;
 
@@ -14,7 +15,7 @@ public class SeizureTrackerController(ILogger<SeizureTrackerController> log, ICo
     private readonly IConfiguration _config = config;
     private readonly ISeizureTrackerService _seizureTrackerService = seizureTrackerService;
 
-    [HttpGet]
+    [HttpGet(ApiRoutes.GetHeaders)]
     public async Task<string> GetSeizureActivityHeaders()
     {
         try

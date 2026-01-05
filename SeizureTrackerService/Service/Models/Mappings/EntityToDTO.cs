@@ -4,12 +4,13 @@ namespace SeizureTrackerService.Service.Models.Mappings;
 
 internal static class EntityToDTO
 {
-    internal static SeizureActivityHeaderDTO MapSeizureActivityHeaderEntityToDTO(this SeizureActivityHeader entity)
+    internal static SeizureActivityHeaderDTO MapSeizureActivityHeaderEntityToDTO(this ManageLogHeaders entity)
     {
         return new SeizureActivityHeaderDTO()
         {
             Id = entity.Id,
-            Date = entity.Date.ToString()
+            Date = entity.Date.ToShortDateString(),
+            DailyTotal = entity.DailyTotal
         };
     }
 

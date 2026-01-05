@@ -65,7 +65,7 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
     private async Task<SeizureActivityHeader?> GetActivityHeadersFromToday() =>
         await _seizureTrackerContext.GetActivityHeadersFromToday();
 
-    private async Task<List<SeizureActivityHeader>> GetActivityHeaders() =>
+    private async Task<List<ManageLogHeaders>> GetActivityHeaders() =>
         await _seizureTrackerContext.GetActivityHeaders();
 
     #endregion

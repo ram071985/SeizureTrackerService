@@ -10,19 +10,21 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
     // public DbSet<SeizureActivityLog> Seizures { get; set; }
     public DbSet<SeizureActivityHeader> SeizureActivityHeader { get; set; }
     public DbSet<SeizureActivityDetail> SeizureActivityDetail { get; set; }
+    public DbSet<ManageLogHeaders> ManageLogHeaders { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(config.GetValue<string>(AppSettings.SeizureTrackerSchema));
         modelBuilder.Entity<SeizureActivityHeader>().ToTable(Tables.SeizureActivityHeader);
         modelBuilder.Entity<SeizureActivityDetail>().ToTable(Tables.SeizureActivityDetail);
+        modelBuilder.Entity<ManageLogHeaders>().ToView(Views.GetManageLogsView);
     }
 #region Get
-public async Task<List<SeizureActivityHeader>> GetActivityHeaders()
+public async Task<List<ManageLogHeaders>> GetActivityHeaders()
 {
     try
     {
-        return await SeizureActivityHeader.ToListAsync();
+        return await ManageLogHeaders.ToListAsync();
     }
     catch (Exception ex)
     {
