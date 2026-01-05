@@ -9,6 +9,7 @@ internal static class AppSettings
 internal static class ApiRoutes
 {
     internal const string GetHeaders = "headers";
+    internal const string GetDetailsByHeaderId = "details/{headerId}";
 }
 internal static class Tables
 {
@@ -19,4 +20,9 @@ internal static class Tables
 internal static class Views
 {
     internal const string GetManageLogsView = "vwGetManageLogHeaders";
+}
+
+internal static class StoredProcedures
+{
+    internal const string DevGetActivityLogDetailsByHeaderId = "EXEC dev.GetActivityLogDetailsByHeaderId @HeaderId = ";
 }

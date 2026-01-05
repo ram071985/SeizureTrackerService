@@ -18,16 +18,33 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
         try
         {
             var activityHeaders = await GetActivityHeaders();
-            
+
             return activityHeaders.Select(x => x.MapSeizureActivityHeaderEntityToDTO()).ToList();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            
+
             throw;
         }
     }
+    
+    public async Task<List<SeizureActivityDetailDTO>> GetSeizureActivityDetailsByHeaderId(int headerId)
+    {
+        try
+        {
+            var activityHeaders = await GetActivityDetailsByHeaderId(headerId);
+
+            return activityHeaders.Select(x => x.MapSeizureActivityDetailEntityToDTO()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            throw;
+        }
+    }
+
     public async Task AddActivityLog(SeizureActivityDetailDTO log)
     {
         try
@@ -67,6 +84,9 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
 
     private async Task<List<ManageLogHeaders>> GetActivityHeaders() =>
         await _seizureTrackerContext.GetActivityHeaders();
+
+    private async Task<List<GetActivityDetailByHeaderId>> GetActivityDetailsByHeaderId(int headerId) =>
+        await _seizureTrackerContext.GetActivityDetailsByHeaderId(headerId);
 
     #endregion
 

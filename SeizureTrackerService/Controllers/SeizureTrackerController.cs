@@ -32,6 +32,23 @@ public class SeizureTrackerController(ILogger<SeizureTrackerController> log, ICo
         }
     }
     
+    [HttpGet(ApiRoutes.GetDetailsByHeaderId)]
+    public async Task<string> GetSeizureActivityDetailsByHeaderId(int headerId)
+    {
+        try
+        {
+            var details = await _seizureTrackerService.GetSeizureActivityDetailsByHeaderId(headerId);
+            
+            return JsonSerializer.Serialize(details);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            
+            throw;
+        }
+    }
+    
     [HttpPost]
     public async Task AddSeizureLog([FromBody] SeizureActivityDetailDTO log)
     {

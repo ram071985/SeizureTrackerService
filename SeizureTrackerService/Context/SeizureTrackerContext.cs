@@ -11,6 +11,7 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
     public DbSet<SeizureActivityHeader> SeizureActivityHeader { get; set; }
     public DbSet<SeizureActivityDetail> SeizureActivityDetail { get; set; }
     public DbSet<ManageLogHeaders> ManageLogHeaders { get; set; }
+    public DbSet<GetActivityDetailByHeaderId> GetActivityDetailByHeadersId { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,35 +20,57 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
         modelBuilder.Entity<SeizureActivityDetail>().ToTable(Tables.SeizureActivityDetail);
         modelBuilder.Entity<ManageLogHeaders>().ToView(Views.GetManageLogsView);
     }
-#region Get
-public async Task<List<ManageLogHeaders>> GetActivityHeaders()
-{
-    try
+
+    #region Get
+
+    public async Task<List<ManageLogHeaders>> GetActivityHeaders()
     {
-        return await ManageLogHeaders.ToListAsync();
+        try
+        {
+            return await ManageLogHeaders.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+
+            throw;
+        }
     }
-    catch (Exception ex)
+
+    public async Task<SeizureActivityHeader?> GetActivityHeadersFromToday()
     {
-        Console.WriteLine(ex.Message);
-        
-        throw;
+        try
+        {
+            return await SeizureActivityHeader.FirstOrDefaultAsync(x => x.Date.Date == DateTime.Now.Date);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+
+            throw;
+        }
     }
-}
-public async Task<SeizureActivityHeader?> GetActivityHeadersFromToday()
-{
-    try
+
+    public async Task<List<GetActivityDetailByHeaderId>> GetActivityDetailsByHeaderId(int headerId)
     {
-        return await SeizureActivityHeader.FirstOrDefaultAsync(x => x.Date.Date == DateTime.Now.Date);
+        try
+        {
+            return await GetActivityDetailByHeadersId
+                .FromSqlInterpolated($"{StoredProcedures.DevGetActivityLogDetailsByHeaderId}{headerId}")
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            throw;
+        }
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine(ex.Message);
-        
-        throw;
-    }
-}
-#endregion
+
+    #endregion
+
     #region Add
+
     public async Task<int> AddSeizureActivityHeader(SeizureActivityHeader activityLog)
     {
         try
@@ -55,7 +78,7 @@ public async Task<SeizureActivityHeader?> GetActivityHeadersFromToday()
             await SeizureActivityHeader.AddAsync(activityLog);
 
             await SaveChangesAsync();
-            
+
             return activityLog.Id;
         }
         catch (Exception ex)
@@ -65,7 +88,7 @@ public async Task<SeizureActivityHeader?> GetActivityHeadersFromToday()
             throw;
         }
     }
-    
+
     public async Task AddSeizureActivityDetail(SeizureActivityDetail activityLog)
     {
         try
@@ -81,5 +104,6 @@ public async Task<SeizureActivityHeader?> GetActivityHeadersFromToday()
             throw;
         }
     }
+
     #endregion
 }

@@ -14,15 +14,15 @@ internal static class EntityToDTO
         };
     }
 
-    internal static SeizureActivityDetailDTO MapSeizureActivityDetailEntityToDTO(this SeizureActivityDetail entity)
+    internal static SeizureActivityDetailDTO MapSeizureActivityDetailEntityToDTO(this GetActivityDetailByHeaderId entity)
     {
         return new SeizureActivityDetailDTO()
         {
             SeizureId = entity.SeizureId,
-            LogId = entity.LogId,
             SeizureTime = entity.SeizureTime.ToString(),
             SeizureType = entity.SeizureType,
             Comments = entity.Comments
         };
     }
+    
 }

@@ -6,6 +6,7 @@ public interface ISeizureTrackerContext
 {
     public Task<List<ManageLogHeaders>> GetActivityHeaders();
     public Task<SeizureActivityHeader?> GetActivityHeadersFromToday();
+    public Task<List<GetActivityDetailByHeaderId>> GetActivityDetailsByHeaderId(int headerId);
     public Task<int> AddSeizureActivityHeader(SeizureActivityHeader seizureActivityHeader);
     public Task AddSeizureActivityDetail(SeizureActivityDetail seizureActivityDetail);
 }
