@@ -7,22 +7,22 @@ namespace SeizureTrackerService.Context;
 public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> options, IConfiguration config)
     : DbContext(options), ISeizureTrackerContext
 {
-    public DbSet<SeizureActivityLog> Seizures { get; set; }
-    public DbSet<SeizureActivityHeader> SeizureActivityHeaders { get; set; }
-    public DbSet<SeizureActivityDetail> SeizureActivityDetails { get; set; }
+    // public DbSet<SeizureActivityLog> Seizures { get; set; }
+    public DbSet<SeizureActivityHeader> SeizureActivityHeader { get; set; }
+    public DbSet<SeizureActivityDetail> SeizureActivityDetail { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(config.GetValue<string>(AppSettings.SeizureTrackerSchema));
-        modelBuilder.Entity<SeizureActivityLog>().ToTable(Tables.SeizureActivityHeader);
-        modelBuilder.Entity<SeizureActivityLog>().ToTable(Tables.SeizureActivityDetail);
+        modelBuilder.Entity<SeizureActivityHeader>().ToTable(Tables.SeizureActivityHeader);
+        modelBuilder.Entity<SeizureActivityDetail>().ToTable(Tables.SeizureActivityDetail);
     }
 #region Get
 public async Task<List<SeizureActivityHeader>> GetActivityHeaders()
 {
     try
     {
-        return await SeizureActivityHeaders.ToListAsync();
+        return await SeizureActivityHeader.ToListAsync();
     }
     catch (Exception ex)
     {
@@ -31,11 +31,11 @@ public async Task<List<SeizureActivityHeader>> GetActivityHeaders()
         throw;
     }
 }
-public async Task<bool> GetActivityHeadersFromToday()
+public async Task<SeizureActivityHeader?> GetActivityHeadersFromToday()
 {
     try
     {
-        return await SeizureActivityHeaders.AnyAsync(x => x.Date.Date == DateTime.Now.Date);
+        return await SeizureActivityHeader.FirstOrDefaultAsync(x => x.Date.Date == DateTime.Now.Date);
     }
     catch (Exception ex)
     {
@@ -46,13 +46,15 @@ public async Task<bool> GetActivityHeadersFromToday()
 }
 #endregion
     #region Add
-    public async Task AddSeizureActivityHeader(SeizureActivityHeader activityLog)
+    public async Task<int> AddSeizureActivityHeader(SeizureActivityHeader activityLog)
     {
         try
         {
-            await SeizureActivityHeaders.AddAsync(activityLog);
+            await SeizureActivityHeader.AddAsync(activityLog);
 
             await SaveChangesAsync();
+            
+            return activityLog.Id;
         }
         catch (Exception ex)
         {
@@ -66,7 +68,7 @@ public async Task<bool> GetActivityHeadersFromToday()
     {
         try
         {
-            await SeizureActivityDetails.AddAsync(activityLog);
+            await SeizureActivityDetail.AddAsync(activityLog);
 
             await SaveChangesAsync();
         }

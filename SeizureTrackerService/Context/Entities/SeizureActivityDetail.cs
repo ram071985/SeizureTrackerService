@@ -1,7 +1,12 @@
+
+
+using System.ComponentModel.DataAnnotations;
+
 namespace SeizureTrackerService.Context.Entities;
 
 public partial class SeizureActivityDetail
 {
+    [Key]
     public int SeizureId { get; set; }
     public int LogId { get; set; }
     public DateTime SeizureTime { get; set; }

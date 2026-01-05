@@ -16,6 +16,7 @@ internal static class DtoToEntity
         return new SeizureActivityDetail
         {
             SeizureId = detail.SeizureId,
+            SeizureType = detail.SeizureType,
             LogId = detail.LogId,
             SeizureTime = DateTime.Parse(detail.SeizureTime),
         };

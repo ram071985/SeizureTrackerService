@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "d+NVw9+73Vo=",
+  "dgSpecHash": "0Z4N3jv/KRE=",
   "success": true,
   "projectFilePath": "/Users/reidmuchow/RiderProjects/SeizureTrackerService/SeizureTrackerService/SeizureTrackerService.csproj",
   "expectedPackageFiles": [
@@ -81,7 +81,7 @@
     "/Users/reidmuchow/.nuget/packages/system.security.principal.windows/5.0.0/system.security.principal.windows.5.0.0.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/system.text.encoding.codepages/6.0.0/system.text.encoding.codepages.6.0.0.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/system.text.encodings.web/6.0.0/system.text.encodings.web.6.0.0.nupkg.sha512",
-    "/Users/reidmuchow/.nuget/packages/system.text.json/9.0.10/system.text.json.9.0.10.nupkg.sha512",
+    "/Users/reidmuchow/.nuget/packages/system.text.json/9.0.11/system.text.json.9.0.11.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/system.threading.tasks.extensions/4.5.4/system.threading.tasks.extensions.4.5.4.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/system.windows.extensions/6.0.0/system.windows.extensions.6.0.0.nupkg.sha512"
   ],

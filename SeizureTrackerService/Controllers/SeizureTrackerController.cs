@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using SeizureTrackerService.Service;
 using SeizureTrackerService.Service.Models;
@@ -12,6 +13,23 @@ public class SeizureTrackerController(ILogger<SeizureTrackerController> log, ICo
     private readonly ILogger<SeizureTrackerController> _log = log;
     private readonly IConfiguration _config = config;
     private readonly ISeizureTrackerService _seizureTrackerService = seizureTrackerService;
+
+    [HttpGet]
+    public async Task<string> GetSeizureActivityHeaders()
+    {
+        try
+        {
+            var headers = await _seizureTrackerService.GetSeizureActivityHeaders();
+            
+            return JsonSerializer.Serialize(headers);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            
+            throw;
+        }
+    }
     
     [HttpPost]
     public async Task AddSeizureLog([FromBody] SeizureActivityDetailDTO log)

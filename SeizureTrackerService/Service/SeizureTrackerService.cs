@@ -2,6 +2,7 @@ using SeizureTrackerService.Context;
 using SeizureTrackerService.Context.Entities;
 using SeizureTrackerService.Service.Models;
 using SeizureTrackerService.Service.Models.Mappings;
+using SeizureTrackerService.Service.Models.Mappings;
 
 namespace SeizureTrackerService.Service;
 
@@ -12,23 +13,42 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
     private readonly ILogger<SeizureTrackerService> _logger;
     private readonly ISeizureTrackerContext _seizureTrackerContext = seizureTrackerContext;
 
+    public async Task<List<SeizureActivityHeaderDTO>> GetSeizureActivityHeaders()
+    {
+        try
+        {
+            var activityHeaders = await GetActivityHeaders();
+            
+            return activityHeaders.Select(x => x.MapSeizureActivityHeaderEntityToDTO()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            
+            throw;
+        }
+    }
     public async Task AddActivityLog(SeizureActivityDetailDTO log)
     {
         try
         {
             var seizureActivityToday = await GetActivityHeadersFromToday();
             var mappedActivityDetail = log.MapSeizureActivityDetailDTOToEntity();
-            
-            if (seizureActivityToday)
+
+            if (seizureActivityToday == null)
             {
-                await AddActivityDetailLog(mappedActivityDetail);
+                var mappedActivityHeader = log.MapSeizureActivityHeaderDTOToEntity();
+
+                var headerId = await AddActivityHeaderLog(mappedActivityHeader);
+
+                mappedActivityDetail.LogId = headerId;
             }
             else
             {
-                var mappedActivityHeader = log.MapSeizureActivityHeaderDTOToEntity();
-                
-                await AddActivityHeaderLog(mappedActivityHeader);
+                mappedActivityDetail.LogId = seizureActivityToday.Id;
             }
+
+            await AddActivityDetailLog(mappedActivityDetail);
         }
         catch (Exception ex)
         {
@@ -42,7 +62,7 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
 
     #region Get
 
-    private async Task<bool> GetActivityHeadersFromToday() =>
+    private async Task<SeizureActivityHeader?> GetActivityHeadersFromToday() =>
         await _seizureTrackerContext.GetActivityHeadersFromToday();
 
     private async Task<List<SeizureActivityHeader>> GetActivityHeaders() =>
@@ -53,7 +73,7 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
 
     #region Add
 
-    private async Task AddActivityHeaderLog(SeizureActivityHeader activityHeader) =>
+    private async Task<int> AddActivityHeaderLog(SeizureActivityHeader activityHeader) =>
         await _seizureTrackerContext.AddSeizureActivityHeader(activityHeader);
 
     private async Task AddActivityDetailLog(SeizureActivityDetail activityDetail) =>
