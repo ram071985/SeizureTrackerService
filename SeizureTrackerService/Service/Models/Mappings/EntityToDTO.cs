@@ -19,7 +19,8 @@ internal static class EntityToDTO
         return new SeizureActivityDetailDTO()
         {
             SeizureId = entity.SeizureId,
-            SeizureTime = entity.SeizureTime.ToString(),
+            LogId = entity.LogId,
+            SeizureTime = entity.SeizureTime.ToShortTimeString(),
             SeizureType = entity.SeizureType,
             Comments = entity.Comments
         };

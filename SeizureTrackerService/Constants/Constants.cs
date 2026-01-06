@@ -24,5 +24,5 @@ internal static class Views
 
 internal static class StoredProcedures
 {
-    internal const string DevGetActivityLogDetailsByHeaderId = "EXEC dev.GetActivityLogDetailsByHeaderId @HeaderId = ";
+    internal const string DevGetActivityLogDetailsByHeaderId = "EXEC dev.GetActivityLogDetailsByHeaderId @HeaderId=";
 }
