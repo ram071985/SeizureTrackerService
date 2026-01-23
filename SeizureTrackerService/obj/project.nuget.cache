@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "cpGcGAVQlUc=",
+  "dgSpecHash": "YbPJ3FUdSuo=",
   "success": true,
   "projectFilePath": "/Users/reidmuchow/RiderProjects/SeizureTrackerService/SeizureTrackerService/SeizureTrackerService.csproj",
   "expectedPackageFiles": [
@@ -11,6 +11,8 @@
     "/Users/reidmuchow/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/10.0.2/microsoft.aspnetcore.authentication.jwtbearer.10.0.2.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/microsoft.aspnetcore.authentication.openidconnect/10.0.0/microsoft.aspnetcore.authentication.openidconnect.10.0.0.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/microsoft.aspnetcore.authorization/10.0.2/microsoft.aspnetcore.authorization.10.0.2.nupkg.sha512",
+    "/Users/reidmuchow/.nuget/packages/microsoft.aspnetcore.identity.entityframeworkcore/10.0.2/microsoft.aspnetcore.identity.entityframeworkcore.10.0.2.nupkg.sha512",
+    "/Users/reidmuchow/.nuget/packages/microsoft.aspnetcore.identity.ui/10.0.2/microsoft.aspnetcore.identity.ui.10.0.2.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/microsoft.bcl.asyncinterfaces/8.0.0/microsoft.bcl.asyncinterfaces.8.0.0.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/microsoft.bcl.cryptography/9.0.4/microsoft.bcl.cryptography.9.0.4.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/microsoft.data.sqlclient/6.1.1/microsoft.data.sqlclient.6.1.1.nupkg.sha512",
@@ -20,6 +22,8 @@
     "/Users/reidmuchow/.nuget/packages/microsoft.entityframeworkcore.analyzers/10.0.2/microsoft.entityframeworkcore.analyzers.10.0.2.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/microsoft.entityframeworkcore.relational/10.0.2/microsoft.entityframeworkcore.relational.10.0.2.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/microsoft.entityframeworkcore.sqlserver/10.0.2/microsoft.entityframeworkcore.sqlserver.10.0.2.nupkg.sha512",
+    "/Users/reidmuchow/.nuget/packages/microsoft.extensions.fileproviders.embedded/10.0.2/microsoft.extensions.fileproviders.embedded.10.0.2.nupkg.sha512",
+    "/Users/reidmuchow/.nuget/packages/microsoft.extensions.identity.core/10.0.2/microsoft.extensions.identity.core.10.0.2.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/microsoft.identity.abstractions/10.0.0/microsoft.identity.abstractions.10.0.0.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/microsoft.identity.client/4.79.2/microsoft.identity.client.4.79.2.nupkg.sha512",
     "/Users/reidmuchow/.nuget/packages/microsoft.identity.client.extensions.msal/4.73.1/microsoft.identity.client.extensions.msal.4.73.1.nupkg.sha512",
@@ -59,6 +63,18 @@
       "warningLevel": 1,
       "filePath": "/Users/reidmuchow/RiderProjects/SeizureTrackerService/SeizureTrackerService/SeizureTrackerService.csproj",
       "libraryId": "Microsoft.AspNetCore.Authorization",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference Microsoft.Extensions.Identity.Core will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
+      "projectPath": "/Users/reidmuchow/RiderProjects/SeizureTrackerService/SeizureTrackerService/SeizureTrackerService.csproj",
+      "warningLevel": 1,
+      "filePath": "/Users/reidmuchow/RiderProjects/SeizureTrackerService/SeizureTrackerService/SeizureTrackerService.csproj",
+      "libraryId": "Microsoft.Extensions.Identity.Core",
       "targetGraphs": [
         "net10.0"
       ]

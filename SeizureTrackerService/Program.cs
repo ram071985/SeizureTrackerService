@@ -1,23 +1,27 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi;
 
 using SeizureTrackerService.Service;
 using SeizureTrackerService.Context;
+using SeizureTrackerService.Context.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var allowedOrigins = builder.Configuration["AllowedOrigins"]
     .Split(';');
-// Add services to the container.
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("AuthZPolicy", policyBuilder =>
-        policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement()
-            { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
+// // Add services to the container.
+// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+// builder.Services.AddAuthorizationBuilder()
+//     .AddPolicy("AuthZPolicy", policyBuilder =>
+//         policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement()
+//             { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
+
 
 builder.Services.AddDbContext<ISeizureTrackerContext, SeizureTrackerContext>(options =>
 {
@@ -25,7 +29,9 @@ builder.Services.AddDbContext<ISeizureTrackerContext, SeizureTrackerContext>(opt
 
 });
 
-
+builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
+    .AddEntityFrameworkStores<SeizureTrackerContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<ISeizureTrackerService, SeizureTrackerService.Service.SeizureTrackerService>();
 
