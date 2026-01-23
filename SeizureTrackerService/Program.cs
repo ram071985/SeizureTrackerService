@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
+
 using SeizureTrackerService.Service;
 using SeizureTrackerService.Context;
 
@@ -24,6 +25,8 @@ builder.Services.AddDbContext<ISeizureTrackerContext, SeizureTrackerContext>(opt
 
 });
 
+
+
 builder.Services.AddScoped<ISeizureTrackerService, SeizureTrackerService.Service.SeizureTrackerService>();
 
 builder.Services.AddControllers();
@@ -43,6 +46,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSwaggerGen(c =>
 {
+    const string schemeId = "Bearer";
+    
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Seizure Tracker API", Version = "v1" });
     c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
@@ -68,13 +73,10 @@ builder.Services.AddSwaggerGen(c =>
             }
         }
     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
-            },
+            new OpenApiSecuritySchemeReference(schemeId, document), 
             ["https://login.microsoftonline.com/77a231ee-ce66-4265-ab57-611db161f461/oauth2/v2.0/token"]
         }
     });
