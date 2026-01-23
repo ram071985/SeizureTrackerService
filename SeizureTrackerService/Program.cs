@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi;
-
+using Microsoft.AspNetCore.Identity;
 using SeizureTrackerService.Service;
 using SeizureTrackerService.Context;
 using SeizureTrackerService.Context.Entities;
@@ -23,21 +23,39 @@ var allowedOrigins = builder.Configuration["AllowedOrigins"]
 //             { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
 
 
-builder.Services.AddDbContext<ISeizureTrackerContext, SeizureTrackerContext>(options =>
+builder.Services.AddDbContext<SeizureTrackerContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DB"));
-
 });
 
-builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
-    .AddEntityFrameworkStores<SeizureTrackerContext>()
-    .AddDefaultTokenProviders();
+builder.Services.AddScoped<ISeizureTrackerContext>(provider =>
+    provider.GetRequiredService<SeizureTrackerContext>());
+
+builder.Services.AddDbContext<AppIdentityDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DB")));
+
+builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
+    {
+        options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+    })
+    .AddEntityFrameworkStores<AppIdentityDbContext>();
+
+builder.Services.Configure<IdentityPasskeyOptions>(options =>
+{
+    // This MUST match your Azure App Service URL (e.g., myapp.azurewebsites.net)
+    options.ServerDomain = builder.Configuration["Authentication:Passkey:Domain"];
+    // OPTIONAL: How long the browser waits for the user to scan biometrics
+    options.AuthenticatorTimeout = TimeSpan.FromMinutes(3);
+
+    // // OPTIONAL: Standard challenge size is 32 bytes
+    options.ChallengeSize = 32;
+});
 
 builder.Services.AddScoped<ISeizureTrackerService, SeizureTrackerService.Service.SeizureTrackerService>();
 
 builder.Services.AddControllers();
 
-builder.Services.AddCors(options => 
+builder.Services.AddCors(options =>
     {
         options.AddPolicy(name: "MyAllowSpecificOrigins",
             policy =>
@@ -46,14 +64,14 @@ builder.Services.AddCors(options =>
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             }
-            );
+        );
     }
 );
 
 builder.Services.AddSwaggerGen(c =>
 {
     const string schemeId = "Bearer";
-    
+
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Seizure Tracker API", Version = "v1" });
     c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
@@ -82,7 +100,7 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
         {
-            new OpenApiSecuritySchemeReference(schemeId, document), 
+            new OpenApiSecuritySchemeReference(schemeId, document),
             ["https://login.microsoftonline.com/77a231ee-ce66-4265-ab57-611db161f461/oauth2/v2.0/token"]
         }
     });
@@ -97,7 +115,6 @@ builder.Services.AddSwaggerGen(c =>
 // });
 
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -107,9 +124,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors("MyAllowSpecificOrigins");
 
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
