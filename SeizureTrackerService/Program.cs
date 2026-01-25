@@ -26,12 +26,16 @@ builder.Services.AddScoped<ISeizureTrackerContext>(provider =>
 builder.Services.AddDbContext<AppIdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DB")));
 
-builder.Services.AddIdentityCore<ApplicationUser>(options =>
-    {
+builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options => {
         options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
     })
-    .AddEntityFrameworkStores<AppIdentityDbContext>()
-    .AddSignInManager<SignInManager<ApplicationUser>>();
+    .AddEntityFrameworkStores<AppIdentityDbContext>();
+// builder.Services.AddIdentityCore<ApplicationUser>(options =>
+//     {
+//         options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+//     })
+//     .AddEntityFrameworkStores<AppIdentityDbContext>()
+//     .AddSignInManager<SignInManager<ApplicationUser>>();
 
 builder.Services.Configure<IdentityPasskeyOptions>(options =>
 {
