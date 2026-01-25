@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,39 @@ public class AuthController : ControllerBase
         _signInManager = signInManager;
         _userManager = userManager;
     }
+    [HttpGet("info")]
+    [Authorize] // Only accessible to logged-in users
+    public async Task<IActionResult> GetUserInfo()
+    {
+        try
+        {
+            // 1. Get the current user from the ClaimsPrincipal (User property)
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized("User session no longer valid.");
+            }
 
+            // 2. Fetch additional data like roles
+            var roles = await _userManager.GetRolesAsync(user);
+
+            // 3. Map to your DTO
+            var info = new UserInfoResponse
+            {
+                Email = user.Email!,
+                IsEmailConfirmed = user.EmailConfirmed,
+                Roles = roles.ToList(),
+                // Extract standard claims (e.g., NameIdentifier)
+                Claims = User.Claims.ToDictionary(c => c.Type, c => c.Value)
+            };
+
+            return Content(JsonSerializer.Serialize(info), "application/json");
+        }
+        catch (Exception ex)
+        {
+            return Problem("An internal error occurred while fetching user data.");
+        }
+    }
     // 1. Initial Registration (Email/Password)
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
@@ -26,29 +59,79 @@ public class AuthController : ControllerBase
         try
         {
             var user = new ApplicationUser { UserName = request.Email, Email = request.Email };
-            
+
             var result = await _userManager.CreateAsync(user, request.Password);
 
             if (result.Succeeded)
             {
                 return Ok();
             }
-            
+
             return BadRequest(result.Errors);
         }
         catch (DbUpdateException ex)
         {
             // Handle specific database issues (e.g., unique constraint violations not caught by Identity)
-            
+
             return Problem("A database error occurred. Please try again later.");
         }
         catch (Exception ex)
         {
             // Handle truly exceptional, unforeseen errors
-            
+
             return Problem("An internal server error occurred.");
         }
+    }
 
+    // This is the route for AccountClient.LoginWithPasswordAsync
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        try
+        {
+            // 1. Validate Input
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            {
+                return BadRequest("Email and Password are required.");
+            }
+
+            // 2. Attempt Sign-In
+            // isPersistent: true (Remember Me) 
+            // lockoutOnFailure: true (Security best practice for 2026)
+            var result = await _signInManager.PasswordSignInAsync(
+                request.Email,
+                request.Password,
+                isPersistent: true,
+                lockoutOnFailure: true);
+
+            if (result.Succeeded)
+            {
+                return Ok(new { Message = "Login successful" });
+            }
+
+            if (result.IsLockedOut)
+            {
+                return StatusCode(423, "Account is locked. Please try again later.");
+            }
+
+            if (result.RequiresTwoFactor)
+            {
+                return Ok(new { RequiresTwoFactor = true });
+            }
+
+            // 3. Fail gracefully if credentials don't match
+            return Unauthorized("Invalid email or password.");
+        }
+        catch (DbUpdateException ex)
+        {
+            // Database connection or timeout issues
+            return Problem("A database error occurred. Please try again later.");
+        }
+        catch (Exception ex)
+        {
+            // Catch-all for unexpected infrastructure failures
+            return Problem("An unexpected error occurred on the server.");
+        }
     }
 
     // Step 1: Client calls this to get the biometric challenge
@@ -59,13 +142,13 @@ public class AuthController : ControllerBase
         {
             // 1. Validate input
             if (string.IsNullOrEmpty(email)) return BadRequest("Email is required.");
-            
+
             var user = await _userManager.FindByEmailAsync(email);
-            
+
             // SECURITY TIP: In a production app, if the user is null, 
             // consider returning a "dummy" challenge to prevent account enumeration.
             if (user == null) return NotFound("User not found.");
-            
+
             // 3. Generate the login challenge (assertion options)
             // .NET 10: This returns a JSON string representing PasskeyRequestOptions
             string optionsJson = await _signInManager.MakePasskeyRequestOptionsAsync(user);
@@ -101,7 +184,7 @@ public class AuthController : ControllerBase
                 Name = user.Email!,
                 DisplayName = user.Email ?? "User"
             };
-            
+
             // 3. Generate the creation options
             // This internally handles the challenge generation and session state
             var options = await _signInManager.MakePasskeyCreationOptionsAsync(userEntity);
@@ -112,13 +195,13 @@ public class AuthController : ControllerBase
         catch (InvalidOperationException ex)
         {
             // Thrown if the UserStore does not support passkeys (e.g., missing AspNetUserPasskeys table)
-          
+
             return Problem("Passkey registration is currently unavailable on the server.");
         }
         catch (Exception ex)
         {
             // General infrastructure or unexpected failures
-            
+
             return Problem("An internal error occurred. Please try again later.");
         }
     }
@@ -151,3 +234,13 @@ public class AuthController : ControllerBase
 }
 
 public record RegisterRequest(string Email, string Password);
+
+public record LoginRequest(string Email, string Password);
+
+public class UserInfoResponse
+{
+    public required string Email { get; set; }
+    public required bool IsEmailConfirmed { get; set; }
+    public required List<string> Roles { get; set; }
+    public Dictionary<string, string> Claims { get; set; } = new();
+}
