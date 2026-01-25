@@ -7,7 +7,7 @@ using SeizureTrackerService.Service.Models;
 namespace SeizureTrackerService.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class SeizureTrackerController(ILogger<SeizureTrackerController> log, IConfiguration config, ISeizureTrackerService seizureTrackerService) : Controller
 {
 

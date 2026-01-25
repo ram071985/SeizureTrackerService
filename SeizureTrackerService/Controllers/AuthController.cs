@@ -17,7 +17,16 @@ public class AuthController : ControllerBase
         _signInManager = signInManager;
         _userManager = userManager;
     }
+    // 1. Initial Registration (Email/Password)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        var user = new ApplicationUser { UserName = request.Email, Email = request.Email };
+        var result = await _userManager.CreateAsync(user, request.Password);
 
+        if (result.Succeeded) return Ok();
+        return BadRequest(result.Errors);
+    }
     // Step 1: Client calls this to get the biometric challenge
     [HttpGet("passkey-options")]
     public async Task<IActionResult> GetPasskeyOptions([FromQuery] string email)
@@ -46,3 +55,4 @@ public class AuthController : ControllerBase
         return Unauthorized();
     }
 }
+public record RegisterRequest(string Email, string Password);

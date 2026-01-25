@@ -14,14 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 var allowedOrigins = builder.Configuration["AllowedOrigins"]
     .Split(';');
-// // Add services to the container.
-// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
-// builder.Services.AddAuthorizationBuilder()
-//     .AddPolicy("AuthZPolicy", policyBuilder =>
-//         policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement()
-//             { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
-
 
 builder.Services.AddDbContext<SeizureTrackerContext>(options =>
 {
@@ -34,11 +26,12 @@ builder.Services.AddScoped<ISeizureTrackerContext>(provider =>
 builder.Services.AddDbContext<AppIdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DB")));
 
-builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
     {
         options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
     })
-    .AddEntityFrameworkStores<AppIdentityDbContext>();
+    .AddEntityFrameworkStores<AppIdentityDbContext>()
+    .AddSignInManager<SignInManager<ApplicationUser>>();
 
 builder.Services.Configure<IdentityPasskeyOptions>(options =>
 {
@@ -130,7 +123,6 @@ app.UseCors("MyAllowSpecificOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
