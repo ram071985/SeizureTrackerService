@@ -29,6 +29,7 @@ builder.Services.AddDbContext<AppIdentityDbContext>(options =>
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options => {
         options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppIdentityDbContext>();
 // builder.Services.AddIdentityCore<ApplicationUser>(options =>
 //     {
@@ -58,8 +59,9 @@ builder.Services.AddCors(options =>
             policy =>
             {
                 policy.WithOrigins(allowedOrigins)
+                    .AllowAnyMethod()
                     .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    .AllowCredentials();
             }
         );
     }

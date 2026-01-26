@@ -27,6 +27,7 @@ public class AuthController : ControllerBase
         {
             // 1. Get the current user from the ClaimsPrincipal (User property)
             var user = await _userManager.GetUserAsync(User);
+            
             if (user == null)
             {
                 return Unauthorized("User session no longer valid.");
@@ -34,18 +35,18 @@ public class AuthController : ControllerBase
 
             // 2. Fetch additional data like roles
             var roles = await _userManager.GetRolesAsync(user);
-
-            // 3. Map to your DTO
+            
             var info = new UserInfoResponse
             {
+                UserId = user.Id,
                 Email = user.Email!,
                 IsEmailConfirmed = user.EmailConfirmed,
                 Roles = roles.ToList(),
                 // Extract standard claims (e.g., NameIdentifier)
                 Claims = User.Claims.ToDictionary(c => c.Type, c => c.Value)
             };
-
-            return Content(JsonSerializer.Serialize(info), "application/json");
+           return Ok(ServiceResult<UserInfoResponse>.Ok(info));
+           // return Content(JsonSerializer.Serialize(info), "application/json");
         }
         catch (Exception ex)
         {
@@ -168,7 +169,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpGet("register-passkey-options")]
+    [HttpGet("register-options")]
     [Authorize] // User must be logged in (via password or other) to add a biometric factor
     public async Task<IActionResult> GetRegisterPasskeyOptions()
     {
@@ -231,16 +232,65 @@ public class AuthController : ControllerBase
             return Problem("An unexpected error occurred on the server.");
         }
     }
+    
+    [HttpPost("register-passkey-finish")]
+    [Authorize]
+    public async Task<IActionResult> RegisterPasskeyFinish([FromBody] string credentialJson)
+    {
+        try
+        {
+            // 1. VERIFICATION (SignInManager)
+            //  // In the GA release, this method automatically locates the challenge
+            //  // associated with the current user's session.
+            var attestationResult = await _signInManager.PerformPasskeyAttestationAsync(credentialJson);
+
+            if (!attestationResult.Succeeded)
+            {
+                return BadRequest($"Verification failed: {attestationResult.Failure?.Message}");
+            }
+            // 2. PERSISTENCE (UserManager)
+            // Use AddOrUpdatePasskeyAsync to save the validated public key.
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            // In the final .NET 10 release, this is AddPasskeyAsync()
+            var result = await _userManager.AddOrUpdatePasskeyAsync(user, attestationResult.Passkey);
+            
+            return result.Succeeded ? Ok() : BadRequest(result.Errors);
+        }
+        catch (Exception ex)
+        {
+            return Problem("An unexpected error occurred during passkey registration.");
+        }
+    }
 }
 
 public record RegisterRequest(string Email, string Password);
 
-public record LoginRequest(string Email, string Password);
+public record LoginRequest(string Email, string Password, bool RememberMe = false);
 
 public class UserInfoResponse
 {
+    public UserInfoResponse() { } 
+    public required string UserId { get; set; }
     public required string Email { get; set; }
-    public required bool IsEmailConfirmed { get; set; }
+    public bool IsEmailConfirmed { get; set; }
     public required List<string> Roles { get; set; }
     public Dictionary<string, string> Claims { get; set; } = new();
+    public bool HasPasskeys { get; set; }
+}
+
+public class ServiceResult<T>(T? data, string? errorMessage = null)
+{
+    public T? Data { get; } = data;
+    public string? ErrorMessage { get; } = errorMessage;
+    public bool Success => ErrorMessage == null;
+
+    // Static helper for Success
+    public static ServiceResult<T> Ok(T data) 
+        => new ServiceResult<T>(data, null);
+
+    // Static helper for Failure
+    public static ServiceResult<T> Fail(string message) 
+        => new ServiceResult<T>(default, message);
 }
