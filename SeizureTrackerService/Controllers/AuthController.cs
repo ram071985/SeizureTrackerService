@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +21,18 @@ public class AuthController : ControllerBase
         _userManager = userManager;
     }
     [HttpGet("info")]
-    [Authorize] // Only accessible to logged-in users
+    [AllowAnonymous]
     public async Task<IActionResult> GetUserInfo()
     {
         try
         {
+            // Manually check if the user is authenticated via the cookie
+            if (User.Identity?.IsAuthenticated != true)
+            {
+                // Return a successful response indicating "Not Logged In"
+                return Ok(UserInfoResponse.Anonymous()); 
+            }
+            
             // 1. Get the current user from the ClaimsPrincipal (User property)
             var user = await _userManager.GetUserAsync(User);
             
@@ -41,6 +49,7 @@ public class AuthController : ControllerBase
                 UserId = user.Id,
                 Email = user.Email!,
                 IsEmailConfirmed = user.EmailConfirmed,
+                
                 Roles = roles.ToList(),
                 // Extract standard claims (e.g., NameIdentifier)
                 Claims = User.Claims.ToDictionary(c => c.Type, c => c.Value)
@@ -137,35 +146,29 @@ public class AuthController : ControllerBase
 
     // Step 1: Client calls this to get the biometric challenge
     [HttpGet("passkey-options")]
-    public async Task<IActionResult> GetPasskeyOptions([FromQuery] string email)
+    [AllowAnonymous] // Ensure the provider can call this during initial boot
+    public async Task<IActionResult> GetPasskeyOptions([FromQuery] string? email)
     {
         try
         {
-            // 1. Validate input
-            if (string.IsNullOrEmpty(email)) return BadRequest("Email is required.");
+            // 1. Identify the user if an email is provided
+            // If email is null or empty, we treat the request as "Email-less"
+            var user = string.IsNullOrWhiteSpace(email) 
+                ? null 
+                : await _userManager.FindByEmailAsync(email);
 
-            var user = await _userManager.FindByEmailAsync(email);
+            // 2. Generate the login challenge
+            // .NET 10: Passing 'null' creates a Discoverable Credential request
+            // which triggers the biometric prompt for ANY stored passkey on the device.
+            string optionsJson = await _signInManager.MakePasskeyRequestOptionsAsync(user!);
 
-            // SECURITY TIP: In a production app, if the user is null, 
-            // consider returning a "dummy" challenge to prevent account enumeration.
-            if (user == null) return NotFound("User not found.");
-
-            // 3. Generate the login challenge (assertion options)
-            // .NET 10: This returns a JSON string representing PasskeyRequestOptions
-            string optionsJson = await _signInManager.MakePasskeyRequestOptionsAsync(user);
-
-            // 4. Return as raw JSON
-            // Using Content prevents double-serialization that breaks the browser API
+            // 3. Return as raw JSON
             return Content(optionsJson, "application/json");
-        }
-        catch (InvalidOperationException ex)
-        {
-            // Occurs if the Identity store or DB schema isn't set up for passkeys
-            return Problem("Biometric login is currently unavailable.");
         }
         catch (Exception ex)
         {
-            return Problem("An internal error occurred.");
+            // Log the error for medical app audit trails
+            return Problem("An internal error occurred while initiating biometric login.");
         }
     }
 
@@ -252,7 +255,7 @@ public class AuthController : ControllerBase
             // Use AddOrUpdatePasskeyAsync to save the validated public key.
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
-
+        
             // In the final .NET 10 release, this is AddPasskeyAsync()
             var result = await _userManager.AddOrUpdatePasskeyAsync(user, attestationResult.Passkey);
             
@@ -263,6 +266,36 @@ public class AuthController : ControllerBase
             return Problem("An unexpected error occurred during passkey registration.");
         }
     }
+    
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        try
+        {
+            // 1. Core Logic: Sign out from the Identity Cookie scheme
+            await _signInManager.SignOutAsync();
+        
+            // 2. Clear other authentication schemes (if using OIDC or external providers)
+            // This ensures the browser doesn't immediately 'auto-login' the user back in
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            await HttpContext.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme);
+
+            // 3. Return a clean success status
+            return Ok(new { Message = "Logged out successfully" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Occurs if the authentication configuration is missing or invalid
+            return Problem("Server authentication misconfigured.", statusCode: 500);
+        }
+        catch (Exception ex)
+        {
+            // General catch for unexpected infrastructure issues (DB, Middleware, etc.)
+            return Problem("An internal error occurred while ending your session.");
+        }
+    }
+
 }
 
 public record RegisterRequest(string Email, string Password);
@@ -272,12 +305,26 @@ public record LoginRequest(string Email, string Password, bool RememberMe = fals
 public class UserInfoResponse
 {
     public UserInfoResponse() { } 
+    public bool IsAuthenticated { get; set; }
     public required string UserId { get; set; }
     public required string Email { get; set; }
     public bool IsEmailConfirmed { get; set; }
     public required List<string> Roles { get; set; }
     public Dictionary<string, string> Claims { get; set; } = new();
     public bool HasPasskeys { get; set; }
+    
+    
+    // The helper method
+    public static UserInfoResponse Anonymous() 
+    {
+        return new UserInfoResponse 
+        { 
+            UserId = string.Empty,
+            IsAuthenticated = false, 
+            Email = "Anonymous", 
+            Roles = new List<string>() 
+        };
+    }
 }
 
 public class ServiceResult<T>(T? data, string? errorMessage = null)

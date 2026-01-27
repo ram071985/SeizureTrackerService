@@ -26,7 +26,17 @@ builder.Services.AddScoped<ISeizureTrackerContext>(provider =>
 builder.Services.AddDbContext<AppIdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DB")));
 
-builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options => {
+builder.Services.Configure<IdentityPasskeyOptions>(options => 
+{
+    // MUST match your domain (e.g., "localhost" or "seizuretracker.com")
+    options.ServerDomain = "localhost"; 
+    
+    // Hint to the browser for the biometric scan timeout
+    options.AuthenticatorTimeout = TimeSpan.FromMinutes(3); 
+});
+
+builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
+    {
         options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
     })
     .AddRoles<IdentityRole>()
