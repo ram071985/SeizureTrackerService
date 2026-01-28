@@ -49,7 +49,7 @@ public class AuthController : ControllerBase
                 UserId = user.Id,
                 Email = user.Email!,
                 IsEmailConfirmed = user.EmailConfirmed,
-                
+                IsAuthenticated = User.Identity?.IsAuthenticated ?? false, 
                 Roles = roles.ToList(),
                 // Extract standard claims (e.g., NameIdentifier)
                 Claims = User.Claims.ToDictionary(c => c.Type, c => c.Value)
@@ -305,7 +305,7 @@ public record LoginRequest(string Email, string Password, bool RememberMe = fals
 public class UserInfoResponse
 {
     public UserInfoResponse() { } 
-    public bool IsAuthenticated { get; set; }
+    public bool? IsAuthenticated { get; set; }
     public required string UserId { get; set; }
     public required string Email { get; set; }
     public bool IsEmailConfirmed { get; set; }
