@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -6,13 +8,14 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using SeizureTrackerService.Service;
 using SeizureTrackerService.Context;
 using SeizureTrackerService.Context.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var allowedOrigins = builder.Configuration["AllowedOrigins"]
+var allowedOrigins = builder.Configuration["AllowedOrigins"] 
     .Split(';');
 
 
@@ -21,18 +24,18 @@ builder.Services.AddDbContext<SeizureTrackerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DB"));
 });
 
-// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//     .AddJwtBearer(options =>
-//     {
-//         options.TokenValidationParameters = new TokenValidationParameters
-//         {
-//             ValidateIssuerSigningKey = true,
-//             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-//             ValidateIssuer = false, // Set to true if you want to validate your app URL
-//             ValidateAudience = false,
-//             RoleClaimType = ClaimTypes.Role // Important: Tells [Authorize(Roles="...")] where to look
-//         };
-//     });
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+            ValidateIssuer = false, // Set to true if you want to validate your app URL
+            ValidateAudience = false,
+            RoleClaimType = ClaimTypes.Role // Important: Tells [Authorize(Roles="...")] where to look
+        };
+    });
 
 
 builder.Services.AddScoped<ISeizureTrackerContext>(provider =>

@@ -28,7 +28,7 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
             throw;
         }
     }
-    
+
     public async Task<List<SeizureActivityDetailDTO>> GetSeizureActivityDetailsByHeaderId(int headerId)
     {
         try
@@ -41,6 +41,20 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
         {
             Console.WriteLine(ex);
 
+            throw;
+        }
+    }
+
+    public async Task<bool> CheckWhiteListSproc(string email)
+    {
+        try
+        {
+            return await CheckWhiteListSprocContext(email);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            
             throw;
         }
     }
@@ -87,6 +101,9 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
 
     private async Task<List<GetActivityDetailByHeaderId>> GetActivityDetailsByHeaderId(int headerId) =>
         await _seizureTrackerContext.GetActivityDetailsByHeaderId(headerId);
+
+    private async Task<bool> CheckWhiteListSprocContext(string email) =>
+        await _seizureTrackerContext.CheckWhiteListSproc(email);
 
     #endregion
 

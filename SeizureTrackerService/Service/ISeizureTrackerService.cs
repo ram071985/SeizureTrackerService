@@ -4,7 +4,8 @@ namespace SeizureTrackerService.Service;
 
 public interface ISeizureTrackerService
 {
-    public Task<List<SeizureActivityHeaderDTO>> GetSeizureActivityHeaders();
-    public Task<List<SeizureActivityDetailDTO>> GetSeizureActivityDetailsByHeaderId(int headerId);
-    public Task AddActivityLog(SeizureActivityDetailDTO seizureFormDto);
+    Task<List<SeizureActivityHeaderDTO>> GetSeizureActivityHeaders();
+    Task<List<SeizureActivityDetailDTO>> GetSeizureActivityDetailsByHeaderId(int headerId);
+    Task AddActivityLog(SeizureActivityDetailDTO seizureFormDto);
+    Task<bool> CheckWhiteListSproc(string email);
 }

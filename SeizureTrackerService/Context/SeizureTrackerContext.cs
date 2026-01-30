@@ -1,3 +1,4 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SeizureTrackerService.Context.Entities;
 using SeizureTrackerService.Constants;
@@ -12,6 +13,7 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
     public DbSet<SeizureActivityDetail> SeizureActivityDetail { get; set; }
     public DbSet<ManageLogHeaders> ManageLogHeaders { get; set; }
     public DbSet<GetActivityDetailByHeaderId> GetActivityDetailByHeadersId { get; set; }
+    public DbSet<WhiteList> WhiteList { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,6 +21,7 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
         modelBuilder.Entity<SeizureActivityHeader>().ToTable(Tables.SeizureActivityHeader);
         modelBuilder.Entity<SeizureActivityDetail>().ToTable(Tables.SeizureActivityDetail);
         modelBuilder.Entity<ManageLogHeaders>().ToView(Views.GetManageLogsView);
+        modelBuilder.Entity<WhiteList>().ToTable(Tables.WhiteList);
     }
 
     #region Get
@@ -62,6 +65,33 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
         catch (Exception ex)
         {
             Console.WriteLine(ex);
+
+            throw;
+        }
+    }
+
+    public async Task<bool> CheckWhiteListSproc(string email)
+    {
+        var outputParam = new SqlParameter
+        {
+            ParameterName = "@IsAuthorized",
+            SqlDbType = System.Data.SqlDbType.Bit,
+            Direction = System.Data.ParameterDirection.Output // Essential for reading data back
+        };
+
+        try
+        {
+            var emailParam = new SqlParameter("@Email", email);
+
+            await Database.ExecuteSqlRawAsync(StoredProcedures.CheckWhiteListSproc, emailParam, outputParam);
+
+            bool isAuthorized = (bool)outputParam.Value;
+
+            return isAuthorized;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
 
             throw;
         }

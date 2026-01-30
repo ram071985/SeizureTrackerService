@@ -4,9 +4,10 @@ namespace SeizureTrackerService.Context;
 
 public interface ISeizureTrackerContext
 {
-    public Task<List<ManageLogHeaders>> GetActivityHeaders();
-    public Task<SeizureActivityHeader?> GetActivityHeadersFromToday();
-    public Task<List<GetActivityDetailByHeaderId>> GetActivityDetailsByHeaderId(int headerId);
-    public Task<int> AddSeizureActivityHeader(SeizureActivityHeader seizureActivityHeader);
-    public Task AddSeizureActivityDetail(SeizureActivityDetail seizureActivityDetail);
+    Task<List<ManageLogHeaders>> GetActivityHeaders();
+    Task<SeizureActivityHeader?> GetActivityHeadersFromToday();
+    Task<List<GetActivityDetailByHeaderId>> GetActivityDetailsByHeaderId(int headerId);
+    Task<int> AddSeizureActivityHeader(SeizureActivityHeader seizureActivityHeader);
+    Task AddSeizureActivityDetail(SeizureActivityDetail seizureActivityDetail);
+    Task<bool> CheckWhiteListSproc(string email);
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SeizureTrackerService.Context.Entities;
+using SeizureTrackerService.Service;
 
 namespace SeizureTrackerService.Controllers;
 
@@ -14,11 +15,13 @@ public class AuthController : ControllerBase
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ISeizureTrackerService _seizureTrackerService;
 
-    public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+    public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ISeizureTrackerService seizureTrackerService)
     {
         _signInManager = signInManager;
         _userManager = userManager;
+        _seizureTrackerService = seizureTrackerService;
     }
     [HttpGet("info")]
     [AllowAnonymous]
@@ -43,23 +46,6 @@ public class AuthController : ControllerBase
 
             // 2. Fetch additional data like roles
             var roles = await _userManager.GetRolesAsync(user);
-            // Inside your Login/Token endpoint after biometric validation succeeds:
-            // var claims = new List<Claim>
-            // {
-            //     new Claim(ClaimTypes.Name, user.Email),
-            //     new Claim(ClaimTypes.Role, "WhitelistedUser") // Manually adding the role here
-            // };
-            //
-            // var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            // var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            //
-            // var token = new JwtSecurityToken(
-            //     claims: claims,
-            //     expires: DateTime.Now.AddHours(8),
-            //     signingCredentials: creds
-            // );
-            //
-            // return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
 
             var info = new UserInfoResponse
             {
@@ -86,16 +72,19 @@ public class AuthController : ControllerBase
     {
         try
         {
-            // // 1. YOUR WHITELIST CHECK
-            // var isAllowed = await _db.WhitelistedEmails.AnyAsync(e => e.Email == request.Email);
-            // if (!isAllowed) return Forbid(); // Stop unauthorized sign-up here
+            // 1. YOUR WHITELIST CHECK
+            var isAllowed = await _seizureTrackerService.CheckWhiteListSproc(request.Email);
+            
+            if (!isAllowed) return Forbid(); // Stop unauthorized sign-up here
+            
             var user = new ApplicationUser { UserName = request.Email, Email = request.Email };
 
             var result = await _userManager.CreateAsync(user, request.Password);
 
             if (result.Succeeded)
             {
-                // await _userManager.AddToRoleAsync(user, "WhitelistedUser");
+                await _userManager.AddToRoleAsync(user, "WhitelistedUser");
+                
                 return Ok();
             }
 
