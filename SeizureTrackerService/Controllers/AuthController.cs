@@ -187,14 +187,6 @@ public class AuthController : ControllerBase
     [Authorize] // User must be logged in (via password or other) to add a biometric factor
     public async Task<IActionResult> GetRegisterPasskeyOptions()
     {
-        // Check SQL Server Whitelist
-        // var isWhitelisted = await _context.Whitelist
-        //     .AnyAsync(w => w.Email == email && w.IsActive);
-        //
-        // if (!isWhitelisted) 
-        //     return Forbid("You are not authorized to create an account.");
-
-        // If allowed, continue with FIDO2/Passkey options generation...
         try
         {
             // 1. Identify the currently logged-in user
