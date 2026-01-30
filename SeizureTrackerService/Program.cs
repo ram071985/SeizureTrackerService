@@ -15,10 +15,25 @@ var builder = WebApplication.CreateBuilder(args);
 var allowedOrigins = builder.Configuration["AllowedOrigins"]
     .Split(';');
 
+
 builder.Services.AddDbContext<SeizureTrackerContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DB"));
 });
+
+// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//     .AddJwtBearer(options =>
+//     {
+//         options.TokenValidationParameters = new TokenValidationParameters
+//         {
+//             ValidateIssuerSigningKey = true,
+//             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+//             ValidateIssuer = false, // Set to true if you want to validate your app URL
+//             ValidateAudience = false,
+//             RoleClaimType = ClaimTypes.Role // Important: Tells [Authorize(Roles="...")] where to look
+//         };
+//     });
+
 
 builder.Services.AddScoped<ISeizureTrackerContext>(provider =>
     provider.GetRequiredService<SeizureTrackerContext>());

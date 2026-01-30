@@ -43,7 +43,24 @@ public class AuthController : ControllerBase
 
             // 2. Fetch additional data like roles
             var roles = await _userManager.GetRolesAsync(user);
-            
+            // Inside your Login/Token endpoint after biometric validation succeeds:
+            // var claims = new List<Claim>
+            // {
+            //     new Claim(ClaimTypes.Name, user.Email),
+            //     new Claim(ClaimTypes.Role, "WhitelistedUser") // Manually adding the role here
+            // };
+            //
+            // var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            // var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            //
+            // var token = new JwtSecurityToken(
+            //     claims: claims,
+            //     expires: DateTime.Now.AddHours(8),
+            //     signingCredentials: creds
+            // );
+            //
+            // return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+
             var info = new UserInfoResponse
             {
                 UserId = user.Id,
@@ -64,16 +81,21 @@ public class AuthController : ControllerBase
     }
     // 1. Initial Registration (Email/Password)
     [HttpPost("register")]
+    // [Authorize(Roles = "WhitelistedUser")] // This checks the JWT you issued
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         try
         {
+            // // 1. YOUR WHITELIST CHECK
+            // var isAllowed = await _db.WhitelistedEmails.AnyAsync(e => e.Email == request.Email);
+            // if (!isAllowed) return Forbid(); // Stop unauthorized sign-up here
             var user = new ApplicationUser { UserName = request.Email, Email = request.Email };
 
             var result = await _userManager.CreateAsync(user, request.Password);
 
             if (result.Succeeded)
             {
+                // await _userManager.AddToRoleAsync(user, "WhitelistedUser");
                 return Ok();
             }
 
@@ -176,6 +198,14 @@ public class AuthController : ControllerBase
     [Authorize] // User must be logged in (via password or other) to add a biometric factor
     public async Task<IActionResult> GetRegisterPasskeyOptions()
     {
+        // Check SQL Server Whitelist
+        // var isWhitelisted = await _context.Whitelist
+        //     .AnyAsync(w => w.Email == email && w.IsActive);
+        //
+        // if (!isWhitelisted) 
+        //     return Forbid("You are not authorized to create an account.");
+
+        // If allowed, continue with FIDO2/Passkey options generation...
         try
         {
             // 1. Identify the currently logged-in user
