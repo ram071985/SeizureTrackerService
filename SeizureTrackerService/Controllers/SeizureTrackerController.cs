@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SeizureTrackerService.Constants;
 using SeizureTrackerService.Service;
@@ -16,6 +17,7 @@ public class SeizureTrackerController(ILogger<SeizureTrackerController> log, ICo
     private readonly ISeizureTrackerService _seizureTrackerService = seizureTrackerService;
 
     [HttpGet(ApiRoutes.GetHeaders)]
+    [Authorize(Roles = "WhitelistedUser")]
     public async Task<string> GetSeizureActivityHeaders()
     {
         try
@@ -33,6 +35,7 @@ public class SeizureTrackerController(ILogger<SeizureTrackerController> log, ICo
     }
     
     [HttpGet(ApiRoutes.GetDetailsByHeaderId)]
+    [Authorize(Roles = "WhitelistedUser")]
     public async Task<string> GetSeizureActivityDetailsByHeaderId(int headerId)
     {
         try
@@ -50,6 +53,7 @@ public class SeizureTrackerController(ILogger<SeizureTrackerController> log, ICo
     }
     
     [HttpPost]
+    [Authorize(Roles = "WhitelistedUser")]
     public async Task AddSeizureLog([FromBody] SeizureActivityDetailDTO log)
     {
         try

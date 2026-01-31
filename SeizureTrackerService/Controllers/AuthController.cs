@@ -17,12 +17,14 @@ public class AuthController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ISeizureTrackerService _seizureTrackerService;
 
-    public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ISeizureTrackerService seizureTrackerService)
+    public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager,
+        ISeizureTrackerService seizureTrackerService)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _seizureTrackerService = seizureTrackerService;
     }
+
     [HttpGet("info")]
     [AllowAnonymous]
     public async Task<IActionResult> GetUserInfo()
@@ -33,12 +35,12 @@ public class AuthController : ControllerBase
             if (User.Identity?.IsAuthenticated != true)
             {
                 // Return a successful response indicating "Not Logged In"
-                return Ok(UserInfoResponse.Anonymous()); 
+                return Ok(UserInfoResponse.Anonymous());
             }
-            
+
             // 1. Get the current user from the ClaimsPrincipal (User property)
             var user = await _userManager.GetUserAsync(User);
-            
+
             if (user == null)
             {
                 return Unauthorized("User session no longer valid.");
@@ -52,31 +54,32 @@ public class AuthController : ControllerBase
                 UserId = user.Id,
                 Email = user.Email!,
                 IsEmailConfirmed = user.EmailConfirmed,
-                IsAuthenticated = User.Identity?.IsAuthenticated ?? false, 
+                IsAuthenticated = User.Identity?.IsAuthenticated ?? false,
                 Roles = roles.ToList(),
                 // Extract standard claims (e.g., NameIdentifier)
                 Claims = User.Claims.ToDictionary(c => c.Type, c => c.Value)
             };
-           return Ok(ServiceResult<UserInfoResponse>.Ok(info));
-           // return Content(JsonSerializer.Serialize(info), "application/json");
+            return Ok(ServiceResult<UserInfoResponse>.Ok(info));
+            // return Content(JsonSerializer.Serialize(info), "application/json");
         }
         catch (Exception ex)
         {
             return Problem("An internal error occurred while fetching user data.");
         }
     }
+
     // 1. Initial Registration (Email/Password)
     [HttpPost("register")]
-    // [Authorize(Roles = "WhitelistedUser")] // This checks the JWT you issued
+    [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         try
         {
             // 1. YOUR WHITELIST CHECK
             var isAllowed = await _seizureTrackerService.CheckWhiteListSproc(request.Email);
-            
+
             if (!isAllowed) return Forbid(); // Stop unauthorized sign-up here
-            
+
             var user = new ApplicationUser { UserName = request.Email, Email = request.Email };
 
             var result = await _userManager.CreateAsync(user, request.Password);
@@ -84,7 +87,7 @@ public class AuthController : ControllerBase
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "WhitelistedUser");
-                
+
                 return Ok();
             }
 
@@ -106,6 +109,7 @@ public class AuthController : ControllerBase
 
     // This is the route for AccountClient.LoginWithPasswordAsync
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         try
@@ -164,8 +168,8 @@ public class AuthController : ControllerBase
         {
             // 1. Identify the user if an email is provided
             // If email is null or empty, we treat the request as "Email-less"
-            var user = string.IsNullOrWhiteSpace(email) 
-                ? null 
+            var user = string.IsNullOrWhiteSpace(email)
+                ? null
                 : await _userManager.FindByEmailAsync(email);
 
             // 2. Generate the login challenge
@@ -184,7 +188,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("register-options")]
-    [Authorize] // User must be logged in (via password or other) to add a biometric factor
+    [Authorize(Roles = "WhitelistedUser")]
     public async Task<IActionResult> GetRegisterPasskeyOptions()
     {
         try
@@ -223,6 +227,7 @@ public class AuthController : ControllerBase
 
     // Step 2: Client sends the biometric result here
     [HttpPost("passkey-login")]
+    [AllowAnonymous]
     public async Task<IActionResult> PasskeyLogin([FromBody] string credentialJson)
     {
         try
@@ -246,9 +251,9 @@ public class AuthController : ControllerBase
             return Problem("An unexpected error occurred on the server.");
         }
     }
-    
+
     [HttpPost("register-passkey-finish")]
-    [Authorize]
+    [Authorize(Roles = "WhitelistedUser")]
     public async Task<IActionResult> RegisterPasskeyFinish([FromBody] string credentialJson)
     {
         try
@@ -262,14 +267,15 @@ public class AuthController : ControllerBase
             {
                 return BadRequest($"Verification failed: {attestationResult.Failure?.Message}");
             }
+
             // 2. PERSISTENCE (UserManager)
             // Use AddOrUpdatePasskeyAsync to save the validated public key.
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
-        
+
             // In the final .NET 10 release, this is AddPasskeyAsync()
             var result = await _userManager.AddOrUpdatePasskeyAsync(user, attestationResult.Passkey);
-            
+
             return result.Succeeded ? Ok() : BadRequest(result.Errors);
         }
         catch (Exception ex)
@@ -277,16 +283,16 @@ public class AuthController : ControllerBase
             return Problem("An unexpected error occurred during passkey registration.");
         }
     }
-    
+
     [HttpPost("logout")]
-    [Authorize]
+    [Authorize(Roles = "WhitelistedUser")] // This checks the JWT you issued
     public async Task<IActionResult> Logout()
     {
         try
         {
             // 1. Core Logic: Sign out from the Identity Cookie scheme
             await _signInManager.SignOutAsync();
-        
+
             // 2. Clear other authentication schemes (if using OIDC or external providers)
             // This ensures the browser doesn't immediately 'auto-login' the user back in
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
@@ -306,7 +312,6 @@ public class AuthController : ControllerBase
             return Problem("An internal error occurred while ending your session.");
         }
     }
-
 }
 
 public record RegisterRequest(string Email, string Password);
@@ -315,7 +320,10 @@ public record LoginRequest(string Email, string Password, bool RememberMe = fals
 
 public class UserInfoResponse
 {
-    public UserInfoResponse() { } 
+    public UserInfoResponse()
+    {
+    }
+
     public bool? IsAuthenticated { get; set; }
     public required string UserId { get; set; }
     public required string Email { get; set; }
@@ -323,17 +331,17 @@ public class UserInfoResponse
     public required List<string> Roles { get; set; }
     public Dictionary<string, string> Claims { get; set; } = new();
     public bool HasPasskeys { get; set; }
-    
-    
+
+
     // The helper method
-    public static UserInfoResponse Anonymous() 
+    public static UserInfoResponse Anonymous()
     {
-        return new UserInfoResponse 
-        { 
+        return new UserInfoResponse
+        {
             UserId = string.Empty,
-            IsAuthenticated = false, 
-            Email = "Anonymous", 
-            Roles = new List<string>() 
+            IsAuthenticated = false,
+            Email = "Anonymous",
+            Roles = new List<string>()
         };
     }
 }
@@ -345,10 +353,10 @@ public class ServiceResult<T>(T? data, string? errorMessage = null)
     public bool Success => ErrorMessage == null;
 
     // Static helper for Success
-    public static ServiceResult<T> Ok(T data) 
+    public static ServiceResult<T> Ok(T data)
         => new ServiceResult<T>(data, null);
 
     // Static helper for Failure
-    public static ServiceResult<T> Fail(string message) 
+    public static ServiceResult<T> Fail(string message)
         => new ServiceResult<T>(default, message);
 }

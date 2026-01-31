@@ -48,9 +48,10 @@ builder.Services.Configure<IdentityPasskeyOptions>(options =>
 {
     // MUST match your domain (e.g., "localhost" or "seizuretracker.com")
     options.ServerDomain = "localhost"; 
-    
     // Hint to the browser for the biometric scan timeout
     options.AuthenticatorTimeout = TimeSpan.FromMinutes(3); 
+    // // OPTIONAL: Standard challenge size is 32 bytes
+    options.ChallengeSize = 32;
 });
 
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
@@ -65,17 +66,6 @@ builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
 //     })
 //     .AddEntityFrameworkStores<AppIdentityDbContext>()
 //     .AddSignInManager<SignInManager<ApplicationUser>>();
-
-builder.Services.Configure<IdentityPasskeyOptions>(options =>
-{
-    // This MUST match your Azure App Service URL (e.g., myapp.azurewebsites.net)
-    options.ServerDomain = builder.Configuration["Authentication:Passkey:Domain"];
-    // OPTIONAL: How long the browser waits for the user to scan biometrics
-    options.AuthenticatorTimeout = TimeSpan.FromMinutes(3);
-
-    // // OPTIONAL: Standard challenge size is 32 bytes
-    options.ChallengeSize = 32;
-});
 
 builder.Services.AddScoped<ISeizureTrackerService, SeizureTrackerService.Service.SeizureTrackerService>();
 
