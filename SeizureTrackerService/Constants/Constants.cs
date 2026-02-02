@@ -3,7 +3,7 @@ namespace SeizureTrackerService.Constants;
 internal static class AppSettings
 {
     internal const string SeizureTrackerSchema = "SeizureTrackerSchema";
-    
+    internal const string ServerDomain = "IdentityPasskey:ServerDomain";
 }
 
 internal static class ApiRoutes
