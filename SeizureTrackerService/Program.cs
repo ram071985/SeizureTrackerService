@@ -148,6 +148,10 @@ app.UseCors("MyAllowSpecificOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+var identityApiGroup = app.MapGroup("/api/auth");
+identityApiGroup.MapIdentityApi<ApplicationUser>();
+
 app.MapControllers();
 
 app.Run();
