@@ -18,10 +18,10 @@ jobs:
           include-prerelease: true
       
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build SeizureTrackerService/SeizureTrackerService.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/appTemp
+        run: dotnet publish SeizureTrackerService/SeizureTrackerService.csproj -c Release -o ${{env.DOTNET_ROOT}}/appTemp
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
