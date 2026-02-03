@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Identity.Web;
+using Microsoft.Extensions.Identity.Core;
 using Microsoft.OpenApi;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -48,11 +49,22 @@ builder.Services.AddDbContext<AppIdentityDbContext>(options =>
 builder.Services.Configure<IdentityPasskeyOptions>(options => 
 {
     // MUST match your domain (e.g., "localhost" or "seizuretracker.com")
-    options.ServerDomain = builder.Configuration[AppSettings.ServerDomain];; 
+    options.ServerDomain = builder.Configuration[AppSettings.ServerDomain];
     // Hint to the browser for the biometric scan timeout
     options.AuthenticatorTimeout = TimeSpan.FromMinutes(3); 
     // // OPTIONAL: Standard challenge size is 32 bytes
     options.ChallengeSize = 32;
+    // --- ADD THESE LINES TO FORCE FACEID/TOUCHID ---
+    // This tells iOS: "Only use the built-in biometric sensor, no QR codes/external keys."
+    options.AuthenticatorAttachment = "platform"; 
+    
+    // This ensures the device actually performs a biometric check
+    // Use the full name 'UserVerificationRequirement'
+    // Default is "required", which is what you want for medical-grade security
+    options.UserVerificationRequirement = "required";
+
+    // Ensures the key is stored on the device for fast local login
+    options.ResidentKeyRequirement = "required";
 });
 
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
@@ -61,6 +73,7 @@ builder.Services.AddIdentityApiEndpoints<ApplicationUser>(options =>
     })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppIdentityDbContext>();
+
 // builder.Services.AddIdentityCore<ApplicationUser>(options =>
 //     {
 //         options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
