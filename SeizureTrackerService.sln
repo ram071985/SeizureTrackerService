@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeizureTrackerService", "Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{C005EC9C-1224-4FC4-B849-3452F0F3206E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{D8754670-60A9-47F2-AC99-C257D17C20A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{1A83CF1B-6637-41CE-8B8C-E37256951F70}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,8 @@ Global
 		{C005EC9C-1224-4FC4-B849-3452F0F3206E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C005EC9C-1224-4FC4-B849-3452F0F3206E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C005EC9C-1224-4FC4-B849-3452F0F3206E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1A83CF1B-6637-41CE-8B8C-E37256951F70} = {D8754670-60A9-47F2-AC99-C257D17C20A5}
 	EndGlobalSection
 EndGlobal

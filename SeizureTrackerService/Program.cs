@@ -17,7 +17,7 @@ using SeizureTrackerService.Context.Entities;
 var builder = WebApplication.CreateBuilder(args);
 
 var allowedOrigins = builder.Configuration["AllowedOrigins"] 
-    .Split(';');
+    .Split(',');
 
 
 builder.Services.AddDbContext<SeizureTrackerContext>(options =>
