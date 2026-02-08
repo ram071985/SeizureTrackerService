@@ -8,6 +8,9 @@ namespace SeizureTrackerService.Context;
 public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> options, IConfiguration config)
     : DbContext(options), ISeizureTrackerContext
 {
+    private readonly string _schema = config.GetValue<string>(AppSettings.SeizureTrackerSchema);
+
+
     // public DbSet<SeizureActivityLog> Seizures { get; set; }
     public DbSet<SeizureActivityHeader> SeizureActivityHeader { get; set; }
     public DbSet<SeizureActivityDetail> SeizureActivityDetail { get; set; }
@@ -17,7 +20,7 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema(config.GetValue<string>(AppSettings.SeizureTrackerSchema));
+        modelBuilder.HasDefaultSchema(_schema);
         modelBuilder.Entity<SeizureActivityHeader>().ToTable(Tables.SeizureActivityHeader);
         modelBuilder.Entity<SeizureActivityDetail>().ToTable(Tables.SeizureActivityDetail);
         modelBuilder.Entity<ManageLogHeaders>().ToView(Views.GetManageLogsView);
@@ -82,8 +85,9 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
         try
         {
             var emailParam = new SqlParameter("@Email", email);
-
-            await Database.ExecuteSqlRawAsync(StoredProcedures.CheckWhiteListSproc, emailParam, outputParam);
+            
+            var checkWhitelistSproc = _schema == Schema.Dev ? StoredProcedures.CheckWhiteListSprocDev : StoredProcedures.CheckWhiteListSproc;
+            await Database.ExecuteSqlRawAsync(checkWhitelistSproc, emailParam, outputParam);
 
             bool isAuthorized = (bool)outputParam.Value;
 
