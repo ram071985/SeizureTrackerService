@@ -67,4 +67,20 @@ public class SeizureTrackerController(ILogger<SeizureTrackerController> log, ICo
             throw;
         }
     }
+    
+    [HttpPatch]
+    [Authorize(Roles = "WhitelistedUser")]
+    public async Task PatchSeizureActivityLog([FromBody] SeizureActivityDetailDTO seizureDetails)
+    {
+        try
+        {
+            await _seizureTrackerService.AddActivityLog(log);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+
+            throw;
+        }
+    }
 }

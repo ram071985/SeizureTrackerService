@@ -2,6 +2,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SeizureTrackerService.Context.Entities;
 using SeizureTrackerService.Constants;
+using SeizureTrackerService.Service.Models;
 
 namespace SeizureTrackerService.Context;
 
@@ -139,5 +140,36 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
         }
     }
 
+    #endregion
+    # region Patch
+
+    public async Task PatchSeizureActivityDetail(int id, SeizureActivityDetail activityLog)
+    {
+        try
+        {
+            var existingSeizureDetail = SeizureActivityDetail
+                .FirstOrDefaultAsync(log => log.SeizureId == id);
+
+            if (existingSeizureDetail == null)
+                throw new DbUpdateException("Activity log doesn't exist.. Failed to update database record.");
+            
+            // // Only update if the value was actually provided
+            // if (dto.FirstName != null) user.FirstName = dto.FirstName;
+            // if (dto.Email != null) user.Email = dto.Email;
+            //
+            // await _context.SaveChangesAsync();
+            // return NoContent();
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new NonExistantRecordException(ex.Message, ex);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            
+            throw;
+        }
+    }
     #endregion
 }

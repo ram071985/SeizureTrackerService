@@ -88,6 +88,20 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
             throw;
         }
     }
+    
+    public async Task PatchActivityLog(int id, SeizureActivityDetail seizureActivityDetail)
+    {
+        try
+        {
+            var user = S
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+
+            throw;
+        }
+    }
 
     #region Private methods
 
