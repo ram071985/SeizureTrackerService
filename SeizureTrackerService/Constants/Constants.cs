@@ -10,6 +10,7 @@ internal static class ApiRoutes
 {
     internal const string GetHeaders = "headers";
     internal const string GetDetailsByHeaderId = "details/{headerId}";
+    internal const string PatchSeizureActivityDetail = "/details/{id}";
 }
 
 internal static class Tables

@@ -86,8 +86,10 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
         try
         {
             var emailParam = new SqlParameter("@Email", email);
-            
-            var checkWhitelistSproc = _schema == Schema.Dev ? StoredProcedures.CheckWhiteListSprocDev : StoredProcedures.CheckWhiteListSproc;
+
+            var checkWhitelistSproc = _schema == Schema.Dev
+                ? StoredProcedures.CheckWhiteListSprocDev
+                : StoredProcedures.CheckWhiteListSproc;
             await Database.ExecuteSqlRawAsync(checkWhitelistSproc, emailParam, outputParam);
 
             bool isAuthorized = (bool)outputParam.Value;
@@ -141,24 +143,25 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
     }
 
     #endregion
+
     # region Patch
 
     public async Task PatchSeizureActivityDetail(int id, SeizureActivityDetail activityLog)
     {
         try
         {
-            var existingSeizureDetail = SeizureActivityDetail
+            var existingSeizureDetail = await SeizureActivityDetail
                 .FirstOrDefaultAsync(log => log.SeizureId == id);
 
             if (existingSeizureDetail == null)
                 throw new DbUpdateException("Activity log doesn't exist.. Failed to update database record.");
-            
-            // // Only update if the value was actually provided
-            // if (dto.FirstName != null) user.FirstName = dto.FirstName;
-            // if (dto.Email != null) user.Email = dto.Email;
-            //
-            // await _context.SaveChangesAsync();
-            // return NoContent();
+
+            if (!string.IsNullOrEmpty(activityLog.SeizureType))
+                existingSeizureDetail.SeizureType = activityLog.SeizureType;
+            if (!string.IsNullOrEmpty(activityLog.Comments))
+                existingSeizureDetail.Comments = activityLog.Comments;
+
+            await SaveChangesAsync();
         }
         catch (DbUpdateException ex)
         {
@@ -167,9 +170,10 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            
+
             throw;
         }
     }
+
     #endregion
 }

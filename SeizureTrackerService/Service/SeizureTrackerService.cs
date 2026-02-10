@@ -54,7 +54,7 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            
+
             throw;
         }
     }
@@ -88,12 +88,12 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
             throw;
         }
     }
-    
-    public async Task PatchActivityLog(int id, SeizureActivityDetail seizureActivityDetail)
+
+    public async Task PatchActivityLog(int id, SeizureActivityDetailDTO seizureActivityDetail)
     {
         try
         {
-            var user = S
+            await PatchActivityDetailLog(id, seizureActivityDetail.MapSeizureActivityDetailDTOToEntity());
         }
         catch (Exception ex)
         {
@@ -129,6 +129,9 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
 
     private async Task AddActivityDetailLog(SeizureActivityDetail activityDetail) =>
         await _seizureTrackerContext.AddSeizureActivityDetail(activityDetail);
+
+    private async Task PatchActivityDetailLog(int id, SeizureActivityDetail seizureActivityDetail) =>
+        await _seizureTrackerContext.PatchSeizureActivityDetail(id, seizureActivityDetail);
 
     #endregion
 

@@ -21,17 +21,7 @@ internal static class DtoToEntity
             SeizureTime = DateTime.Parse(detail.SeizureTime),
         };
     }
-    
-    internal static SeizureActivityDetail MapSeizureActivityDetailDTOToEntity(this SeizureActivityDetailDTO detail)
-    {
-        return new SeizureActivityDetail
-        {
-            SeizureId = detail.SeizureId,
-            SeizureType = detail.SeizureType,
-            LogId = detail.LogId,
-            SeizureTime = DateTime.Parse(detail.SeizureTime),
-        };
-    }
+
     internal static SeizureActivityLog MapSeizureActivityLogDtoToEntity(this SeizureFormDto source)
     {
         var isSeizureTimeValid = DateTime.TryParse(source.SeizureDate, out var seizureTime);
