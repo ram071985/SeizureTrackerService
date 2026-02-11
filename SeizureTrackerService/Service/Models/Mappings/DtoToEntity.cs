@@ -18,6 +18,7 @@ internal static class DtoToEntity
             SeizureId = detail.SeizureId,
             SeizureType = detail.SeizureType,
             LogId = detail.LogId,
+            Comments = detail.Comments,
             SeizureTime = DateTime.Parse(detail.SeizureTime),
         };
     }

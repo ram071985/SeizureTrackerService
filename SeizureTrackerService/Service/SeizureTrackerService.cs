@@ -89,11 +89,11 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
         }
     }
 
-    public async Task PatchActivityLog(int id, SeizureActivityDetailDTO seizureActivityDetail)
+    public async Task PatchActivityLog(SeizureActivityDetailDTO seizureActivityDetail)
     {
         try
         {
-            await PatchActivityDetailLog(id, seizureActivityDetail.MapSeizureActivityDetailDTOToEntity());
+            await PatchActivityDetailLog(seizureActivityDetail.MapSeizureActivityDetailDTOToEntity());
         }
         catch (Exception ex)
         {
@@ -130,8 +130,8 @@ public class SeizureTrackerService(IConfiguration config, ISeizureTrackerContext
     private async Task AddActivityDetailLog(SeizureActivityDetail activityDetail) =>
         await _seizureTrackerContext.AddSeizureActivityDetail(activityDetail);
 
-    private async Task PatchActivityDetailLog(int id, SeizureActivityDetail seizureActivityDetail) =>
-        await _seizureTrackerContext.PatchSeizureActivityDetail(id, seizureActivityDetail);
+    private async Task PatchActivityDetailLog(SeizureActivityDetail seizureActivityDetail) =>
+        await _seizureTrackerContext.PatchSeizureActivityDetail(seizureActivityDetail);
 
     #endregion
 

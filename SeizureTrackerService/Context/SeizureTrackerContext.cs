@@ -146,12 +146,12 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
 
     # region Patch
 
-    public async Task PatchSeizureActivityDetail(int id, SeizureActivityDetail activityLog)
+    public async Task PatchSeizureActivityDetail(SeizureActivityDetail activityLog)
     {
         try
         {
             var existingSeizureDetail = await SeizureActivityDetail
-                .FirstOrDefaultAsync(log => log.SeizureId == id);
+                .FirstOrDefaultAsync(log => log.SeizureId == activityLog.SeizureId);
 
             if (existingSeizureDetail == null)
                 throw new DbUpdateException("Activity log doesn't exist.. Failed to update database record.");

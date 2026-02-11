@@ -8,5 +8,5 @@ public interface ISeizureTrackerService
     Task<List<SeizureActivityDetailDTO>> GetSeizureActivityDetailsByHeaderId(int headerId);
     Task AddActivityLog(SeizureActivityDetailDTO seizureFormDto);
     Task<bool> CheckWhiteListSproc(string email);
-    Task PatchActivityLog(int id, SeizureActivityDetailDTO seizureActivityDetail);
+    Task PatchActivityLog(SeizureActivityDetailDTO seizureActivityDetail);
 }

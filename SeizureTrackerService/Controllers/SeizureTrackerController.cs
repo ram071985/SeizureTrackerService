@@ -70,11 +70,11 @@ public class SeizureTrackerController(ILogger<SeizureTrackerController> log, ICo
     
     [HttpPatch(ApiRoutes.PatchSeizureActivityDetail)]
     [Authorize(Roles = "WhitelistedUser")]
-    public async Task PatchSeizureActivityLog(int id, [FromBody] SeizureActivityDetailDTO seizureDetails)
+    public async Task PatchSeizureActivityLog([FromBody] SeizureActivityDetailDTO seizureDetails)
     {
         try
         {
-            await _seizureTrackerService.PatchActivityLog(id, seizureDetails);
+            await _seizureTrackerService.PatchActivityLog(seizureDetails);
         }
         catch (Exception ex)
         {
