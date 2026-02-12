@@ -34,7 +34,7 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
     {
         try
         {
-            return await ManageLogHeaders.ToListAsync();
+            return await ManageLogHeaders.OrderByDescending(d => d.Date).ToListAsync();
         }
         catch (Exception ex)
         {
