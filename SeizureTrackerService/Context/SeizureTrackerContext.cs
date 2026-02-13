@@ -2,6 +2,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SeizureTrackerService.Context.Entities;
 using SeizureTrackerService.Constants;
+using SeizureTrackerService.Service.Models;
 
 namespace SeizureTrackerService.Context;
 
@@ -33,7 +34,7 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
     {
         try
         {
-            return await ManageLogHeaders.ToListAsync();
+            return await ManageLogHeaders.OrderByDescending(d => d.Date).ToListAsync();
         }
         catch (Exception ex)
         {
@@ -85,8 +86,10 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
         try
         {
             var emailParam = new SqlParameter("@Email", email);
-            
-            var checkWhitelistSproc = _schema == Schema.Dev ? StoredProcedures.CheckWhiteListSprocDev : StoredProcedures.CheckWhiteListSproc;
+
+            var checkWhitelistSproc = _schema == Schema.Dev
+                ? StoredProcedures.CheckWhiteListSprocDev
+                : StoredProcedures.CheckWhiteListSproc;
             await Database.ExecuteSqlRawAsync(checkWhitelistSproc, emailParam, outputParam);
 
             bool isAuthorized = (bool)outputParam.Value;
@@ -130,6 +133,39 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
             await SeizureActivityDetail.AddAsync(activityLog);
 
             await SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+
+            throw;
+        }
+    }
+
+    #endregion
+
+    # region Patch
+
+    public async Task PatchSeizureActivityDetail(SeizureActivityDetail activityLog)
+    {
+        try
+        {
+            var existingSeizureDetail = await SeizureActivityDetail
+                .FirstOrDefaultAsync(log => log.SeizureId == activityLog.SeizureId);
+
+            if (existingSeizureDetail == null)
+                throw new DbUpdateException("Activity log doesn't exist.. Failed to update database record.");
+
+            if (!string.IsNullOrEmpty(activityLog.SeizureType))
+                existingSeizureDetail.SeizureType = activityLog.SeizureType;
+            if (!string.IsNullOrEmpty(activityLog.Comments))
+                existingSeizureDetail.Comments = activityLog.Comments;
+
+            await SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new NonExistantRecordException(ex.Message, ex);
         }
         catch (Exception ex)
         {

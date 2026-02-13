@@ -20,6 +20,7 @@ internal static class EntityToDTO
         {
             SeizureId = entity.SeizureId,
             LogId = entity.LogId,
+            SeizureDate = entity.SeizureTime.ToShortDateString(),
             SeizureTime = entity.SeizureTime.ToShortTimeString(),
             SeizureType = entity.SeizureType,
             Comments = entity.Comments

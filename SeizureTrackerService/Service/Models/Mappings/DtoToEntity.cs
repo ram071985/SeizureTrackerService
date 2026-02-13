@@ -18,9 +18,11 @@ internal static class DtoToEntity
             SeizureId = detail.SeizureId,
             SeizureType = detail.SeizureType,
             LogId = detail.LogId,
+            Comments = detail.Comments,
             SeizureTime = DateTime.Parse(detail.SeizureTime),
         };
     }
+
     internal static SeizureActivityLog MapSeizureActivityLogDtoToEntity(this SeizureFormDto source)
     {
         var isSeizureTimeValid = DateTime.TryParse(source.SeizureDate, out var seizureTime);

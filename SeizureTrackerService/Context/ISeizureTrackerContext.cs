@@ -10,4 +10,5 @@ public interface ISeizureTrackerContext
     Task<int> AddSeizureActivityHeader(SeizureActivityHeader seizureActivityHeader);
     Task AddSeizureActivityDetail(SeizureActivityDetail seizureActivityDetail);
     Task<bool> CheckWhiteListSproc(string email);
+    Task PatchSeizureActivityDetail(SeizureActivityDetail activityLog);
 }
