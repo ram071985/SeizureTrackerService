@@ -62,8 +62,11 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
     {
         try
         {
+            var getActivityDetailsByHeaderId = (_schema == Schema.Dev)
+                 ? StoredProcedures.GetActivityLogDetailsByHeaderIdDev 
+                 :  StoredProcedures.GetActivityLogDetailsByHeaderIdProd;
             return await GetActivityDetailByHeadersId
-                .FromSqlInterpolated($"EXEC dev.GetActivityLogDetailsByHeaderId @HeaderId={headerId}")
+                .FromSqlInterpolated($"{getActivityDetailsByHeaderId}{headerId}")
                 .ToListAsync();
         }
         catch (Exception ex)
@@ -87,7 +90,7 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
         {
             var emailParam = new SqlParameter("@Email", email);
 
-            var checkWhitelistSproc = _schema == Schema.Dev
+            var checkWhitelistSproc = (_schema == Schema.Dev)
                 ? StoredProcedures.CheckWhiteListSprocDev
                 : StoredProcedures.CheckWhiteListSproc;
             await Database.ExecuteSqlRawAsync(checkWhitelistSproc, emailParam, outputParam);

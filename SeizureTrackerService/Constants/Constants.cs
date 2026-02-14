@@ -33,7 +33,8 @@ internal static class Schema
 
 internal static class StoredProcedures
 {
-    internal const string DevGetActivityLogDetailsByHeaderId = "EXEC dev.GetActivityLogDetailsByHeaderId @HeaderId=";
+    internal const string GetActivityLogDetailsByHeaderIdDev = "EXEC dev.GetActivityLogDetailsByHeaderId @HeaderId=";
+    internal const string GetActivityLogDetailsByHeaderIdProd = "EXEC st.GetActivityLogDetailsByHeaderId @HeaderId=";
     internal const string CheckWhiteListSprocDev = "EXEC dev.usp_IsEmailWhitelisted @Email, @IsAuthorized OUTPUT";
     internal const string CheckWhiteListSproc = "EXEC st.usp_IsEmailWhitelisted @Email, @IsAuthorized OUTPUT";
 }
