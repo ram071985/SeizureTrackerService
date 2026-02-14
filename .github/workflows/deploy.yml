@@ -2,7 +2,7 @@ name: Deploy .NET Core App
 
 on:
   push:
-    branches: [ "main" ] # Triggers on push to master
+    branches: [ "stage" ] 
 
 jobs:
   build-and-deploy:
