@@ -62,9 +62,13 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
     {
         try
         {
-            return await GetActivityDetailByHeadersId
-                .FromSqlInterpolated($"EXEC {_schema}.GetActivityLogDetailsByHeaderId @HeaderId={headerId}")
-                .ToListAsync();
+            return (_schema == Schema.Prod)
+                ? await GetActivityDetailByHeadersId
+                    .FromSqlInterpolated($"EXEC st.GetActivityLogDetailsByHeaderId @HeaderId={headerId}")
+                    .ToListAsync()
+                : await GetActivityDetailByHeadersId
+                    .FromSqlInterpolated($"EXEC dev.GetActivityLogDetailsByHeaderId @HeaderId={headerId}")
+                    .ToListAsync();
         }
         catch (Exception ex)
         {
