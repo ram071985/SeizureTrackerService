@@ -7,15 +7,17 @@ internal static class DtoToEntity
     internal static SeizureActivityHeader MapSeizureActivityHeaderDTOToEntity(this SeizureActivityDetailDTO detail)
     {
         var parsedDate = DateTime.Parse(detail.SeizureDate);
+        var plainDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
         
         return new SeizureActivityHeader
         {
-            Date = new DateTimeOffset(parsedDate, TimeSpan.FromHours(-6))
+            Date = new DateTimeOffset(plainDate, TimeSpan.FromHours(-6))
         };
     }
     internal static SeizureActivityDetail MapSeizureActivityDetailDTOToEntity(this SeizureActivityDetailDTO detail)
     {
         var parsedTime = DateTime.Parse(detail.SeizureDate);
+        var plainTime = DateTime.SpecifyKind(parsedTime, DateTimeKind.Unspecified);
         
         return new SeizureActivityDetail
         {
@@ -23,7 +25,7 @@ internal static class DtoToEntity
             SeizureType = detail.SeizureType,
             LogId = detail.LogId,
             Comments = detail.Comments,
-            SeizureTime = new DateTimeOffset(parsedTime, TimeSpan.FromHours(-6))
+            SeizureTime = new DateTimeOffset(plainTime, TimeSpan.FromHours(-6))
         };
     }
 
