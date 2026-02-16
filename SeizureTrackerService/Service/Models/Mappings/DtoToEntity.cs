@@ -6,20 +6,24 @@ internal static class DtoToEntity
 {
     internal static SeizureActivityHeader MapSeizureActivityHeaderDTOToEntity(this SeizureActivityDetailDTO detail)
     {
+        var parsedDate = DateTime.Parse(detail.SeizureDate);
+        
         return new SeizureActivityHeader
         {
-            Date = DateTime.Parse(detail.SeizureTime),
+            Date = new DateTimeOffset(parsedDate, TimeSpan.FromHours(-6))
         };
     }
     internal static SeizureActivityDetail MapSeizureActivityDetailDTOToEntity(this SeizureActivityDetailDTO detail)
     {
+        var parsedTime = DateTime.Parse(detail.SeizureDate);
+        
         return new SeizureActivityDetail
         {
             SeizureId = detail.SeizureId,
             SeizureType = detail.SeizureType,
             LogId = detail.LogId,
             Comments = detail.Comments,
-            SeizureTime = DateTime.Parse(detail.SeizureTime),
+            SeizureTime = new DateTimeOffset(parsedTime, TimeSpan.FromHours(-6))
         };
     }
 
