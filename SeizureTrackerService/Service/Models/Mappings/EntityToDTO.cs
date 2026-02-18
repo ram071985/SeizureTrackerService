@@ -9,7 +9,7 @@ internal static class EntityToDTO
         return new SeizureActivityHeaderDTO()
         {
             Id = entity.Id,
-            Date = entity.Date.DateTime.ToShortDateString(),
+            Date = entity.Date.DateTime.ToString("D"),
             DailyTotal = entity.DailyTotal
         };
     }
@@ -20,8 +20,7 @@ internal static class EntityToDTO
         {
             SeizureId = entity.SeizureId,
             LogId = entity.LogId,
-            SeizureDate = entity.SeizureTime.DateTime.ToShortDateString(),
-            SeizureTime = entity.SeizureTime.DateTime.ToShortTimeString(),
+            SeizureTime = entity.SeizureTime.DateTime.ToString("h:mm tt"),
             SeizureType = entity.SeizureType,
             Comments = entity.Comments
         };
