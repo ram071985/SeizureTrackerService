@@ -6,6 +6,6 @@ namespace SeizureTrackerService.Context.Entities;
 public partial class ManageLogHeaders
 {
     public int Id { get; set; }
-    public DateTime Date { get; set; }
+    public DateTimeOffset Date { get; set; }
     public int DailyTotal { get; set; }
 }
