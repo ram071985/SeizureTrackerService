@@ -46,9 +46,13 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
 
     public async Task<SeizureActivityHeader?> GetActivityHeadersFromToday()
     {
+        var today = DateTime.Today;
+        var tomorrow = today.AddDays(1);
+        
         try
         {
-            return await SeizureActivityHeader.FirstOrDefaultAsync(x => x.Date.Date == DateTime.Now.Date);
+            return await SeizureActivityHeader
+                .FirstOrDefaultAsync(x => x.Date >= today && x.Date < tomorrow);
         }
         catch (Exception ex)
         {
