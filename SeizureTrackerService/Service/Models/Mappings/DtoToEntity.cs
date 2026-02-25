@@ -7,6 +7,7 @@ internal static class DtoToEntity
 {
     internal static SeizureActivityHeader MapSeizureActivityHeaderDTOToEntity(this SeizureActivityDetailDTO detail)
     {
+        
         var parsedDate = DateTime.Parse(detail.SeizureDate);
         
         string tzId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) 
@@ -26,8 +27,7 @@ internal static class DtoToEntity
     }
     internal static SeizureActivityDetail MapSeizureActivityDetailDTOToEntity(this SeizureActivityDetailDTO detail)
     {
-        var parsedTime = DateTime.Parse(detail.SeizureDate);
-        var parsedDate = DateTime.Parse(detail.SeizureDate);
+        var parsedDate = DateTime.Parse(detail.SeizureTime);
         
         string tzId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) 
             ? "Central Standard Time" 
