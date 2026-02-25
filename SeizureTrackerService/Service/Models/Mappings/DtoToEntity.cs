@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using SeizureTrackerService.Context.Entities;
 
 namespace SeizureTrackerService.Service.Models.Mappings;
@@ -7,25 +8,44 @@ internal static class DtoToEntity
     internal static SeizureActivityHeader MapSeizureActivityHeaderDTOToEntity(this SeizureActivityDetailDTO detail)
     {
         var parsedDate = DateTime.Parse(detail.SeizureDate);
-        var plainDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
+        
+        string tzId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) 
+            ? "Central Standard Time" 
+            : "America/Chicago";
+        
+        var cstZone = TimeZoneInfo.FindSystemTimeZoneById(tzId);
+        
+        var localTime = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
+
+        TimeSpan currentOffset = cstZone.GetUtcOffset(localTime);
         
         return new SeizureActivityHeader
         {
-            Date = new DateTimeOffset(plainDate, TimeSpan.FromHours(-6))
+            Date = new DateTimeOffset(localTime, currentOffset)
         };
     }
     internal static SeizureActivityDetail MapSeizureActivityDetailDTOToEntity(this SeizureActivityDetailDTO detail)
     {
         var parsedTime = DateTime.Parse(detail.SeizureDate);
-        var plainTime = DateTime.SpecifyKind(parsedTime, DateTimeKind.Unspecified);
+        var parsedDate = DateTime.Parse(detail.SeizureDate);
         
+        string tzId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) 
+            ? "Central Standard Time" 
+            : "America/Chicago";
+        
+        var cstZone = TimeZoneInfo.FindSystemTimeZoneById(tzId);
+        
+        var localTime = DateTime.SpecifyKind(parsedDate, DateTimeKind.Unspecified);
+
+        TimeSpan currentOffset = cstZone.GetUtcOffset(localTime);
+
         return new SeizureActivityDetail
         {
             SeizureId = detail.SeizureId,
             SeizureType = detail.SeizureType,
             LogId = detail.LogId,
             Comments = detail.Comments,
-            SeizureTime = new DateTimeOffset(plainTime, TimeSpan.FromHours(-6))
+            SeizureTime = new DateTimeOffset(localTime, currentOffset)
         };
     }
 
