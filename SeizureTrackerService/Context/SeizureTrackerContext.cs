@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SeizureTrackerService.Context.Entities;
@@ -46,13 +47,23 @@ public class SeizureTrackerContext(DbContextOptions<SeizureTrackerContext> optio
 
     public async Task<SeizureActivityHeader?> GetActivityHeadersFromToday()
     {
-        var today = DateTime.Today;
-        var tomorrow = today.AddDays(1);
+        string tzId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) 
+            ? "Central Standard Time" 
+            : "America/Chicago";
+        
+// 1. Get the current time in the target TimeZone (not the Server's UTC time)
+        var targetTimeZone = TimeZoneInfo.FindSystemTimeZoneById(tzId); 
+        var nowInTargetZone = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, targetTimeZone);
+
+// 2. Define the start and end of "today" in that specific zone
+        var todayStart = new DateTimeOffset(nowInTargetZone.Date, nowInTargetZone.Offset);
+        var tomorrowStart = todayStart.AddDays(1);
+
         
         try
         {
             return await SeizureActivityHeader
-                .FirstOrDefaultAsync(x => x.Date >= today && x.Date < tomorrow);
+                .FirstOrDefaultAsync(x => x.Date >= todayStart && x.Date < tomorrowStart);
         }
         catch (Exception ex)
         {
